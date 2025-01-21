@@ -2,8 +2,8 @@ import React, { useMemo } from 'react';
 import { useGLTF } from '@react-three/drei';
 
 const CHARACTER_MODELS = {
-  yopuka: '/models/yopuka.glb',
-  pandawa: '/models/pandawa.glb',
+  yopuka: '/aven/models/yopuka.glb',
+  pandawa: '/aven/models/pandawa.glb',
 };
 
 const CHARACTER_SCALES = {

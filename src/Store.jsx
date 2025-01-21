@@ -2,8 +2,8 @@ import {create} from 'zustand';
 
 const useCharacterStore = create((set) => ({
   characters: [
-    { id: 'yopuka', name: 'Yopuka', stats: { strength: 10, agility: 5 }, image: './models/faceyopuka.png' },
-    { id: 'pandawa', name: 'Pandawa', stats: { strength: 7, agility: 8 }, image: './models/facewa.png' },
+    { id: 'yopuka', name: 'Yopuka', stats: { strength: 10, agility: 5 }, image: './aven/models/faceyopuka.png' },
+    { id: 'pandawa', name: 'Pandawa', stats: { strength: 7, agility: 8 }, image: './aven/models/facewa.png' },
   ], // Lista inicial de personajes con imágenes
   selectedCharacter: null, // ID o referencia del personaje seleccionado
 

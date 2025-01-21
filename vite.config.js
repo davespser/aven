@@ -1,8 +1,10 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 
-// https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
-  base: '/aven/' // Reemplaza con el nombre de tu repositorio
+  base: '/aven/', // Prefijo para GitHub Pages
+  build: {
+    outDir: 'dist', // Carpeta de salida
+  },
 });
