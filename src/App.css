@@ -1,0 +1,8 @@
+/* Estilos para hacer el Canvas de tres.js a pantalla completa */
+.full-screen-canvas {
+  width: 100vw;  /* 100% del ancho de la ventana */
+  height: 100vh; /* 100% de la altura de la ventana */
+  position: absolute; /* Asegura que cubra toda la pantalla */
+  top: 0;
+  left: 0;
+}
