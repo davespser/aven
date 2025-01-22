@@ -1,13 +1,30 @@
 import React, { useState } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, Sky } from '@react-three/drei';
+import { Canvas, useLoader } from '@react-three/fiber';
+import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
+import { CubeTextureLoader } from 'three';
 import TiledMap1 from './TiledMap1';
 import TiledMap2 from './TiledMap2';
 import ModeloPatio from './ModeloPatio';
 import Interface from './Interface';
 
+function Skybox() {
+  // Cargar las texturas del skybox
+  const texture = useLoader(CubeTextureLoader, [
+    '/textures/skybox/px.jpg',
+    '/textures/skybox/nx.jpg',
+    '/textures/skybox/py.jpg',
+    '/textures/skybox/ny.jpg',
+    '/textures/skybox/pz.jpg',
+    '/textures/skybox/nz.jpg',
+  ]);
+
+  return (
+    <primitive attach="background" object={texture} />
+  );
+}
+
 export default function App() {
-  const [selectedCharacter, setSelectedCharacter] = useState("pandawa"); // Estado para el personaje seleccionado
+  const [selectedCharacter, setSelectedCharacter] = useState("pandawa");
 
   return (
     <>
@@ -21,28 +38,19 @@ export default function App() {
           left: 0,
         }}
         onCreated={({ gl }) => {
-          // Configurar tamaño y pixel ratio iniciales
           gl.setSize(window.innerWidth, window.innerHeight);
           gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-          // Manejar cambios de tamaño dinámicamente
           const resizeHandler = () => {
             gl.setSize(window.innerWidth, window.innerHeight);
             gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
           };
           window.addEventListener('resize', resizeHandler);
-
-          // Limpiar el listener al desmontar
           return () => window.removeEventListener('resize', resizeHandler);
         }}
       >
-        {/* Cielo dinámico */}
-        <Sky
-          distance={25} // Distancia del cielo
-          sunPosition={[50, 100, 50]} // Posición del sol
-          inclination={0.5} // Inclinación del sol
-          azimuth={0.25} // Azimut (posición horizontal del sol)
-        />
+        {/* Skybox personalizado */}
+        <Skybox />
 
         {/* Iluminación */}
         <ambientLight intensity={0.5} />
@@ -51,7 +59,7 @@ export default function App() {
 
         {/* Primer mapa (TiledMap1) */}
         <group position={[-5, 0, 0]}>
-          <TiledMap1 selectedCharacter={selectedCharacter} /> {/* Pasamos el personaje seleccionado */}
+          <TiledMap1 selectedCharacter={selectedCharacter} />
         </group>
 
         {/* Segundo mapa (TiledMap2) */}
@@ -69,7 +77,7 @@ export default function App() {
       </Canvas>
 
       {/* Interfaz de usuario */}
-      <Interface onSelectCharacter={(model) => setSelectedCharacter(model)} /> {/* Actualizamos el personaje seleccionado */}
+      <Interface onSelectCharacter={(model) => setSelectedCharacter(model)} />
     </>
   );
 }
