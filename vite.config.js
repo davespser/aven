@@ -9,14 +9,16 @@ export default defineConfig({
       targets: [
         {
           src: 'models/patio2.glb', // Especifica el archivo exacto
-          dest: 'models',
+          dest: 'models',           // Directorio destino dentro del build
+          flatten: false,           // Conserva la estructura de carpetas original
         },
       ],
     }),
   ],
-  base: '/aven/',
+  base: '/aven/', // Base URL del proyecto
   build: {
-    outDir: 'dist',
+    outDir: 'dist', // Carpeta de salida para el build
+    emptyOutDir: true, // Limpia la carpeta de salida antes de construir
   },
-  assetsInclude: ['**/*.glb'], // Asegura que los archivos .glb sean tratados como activos
+  assetsInclude: ['**/*.glb'], // Incluye archivos .glb como activos
 });
