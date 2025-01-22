@@ -9,14 +9,14 @@ import Interface from './Interface';
 
 function Skybox() {
   // Cargar las texturas del skybox
-  const texture = useLoader(CubeTextureLoader, [
-    './aven/textures/px.png',
-    './aven/textures/nx.png',
-    './aven/textures/py.png',
-    './aven/textures/ny.png',
-    './aven/textures/pz.png',
-    './aven/textures/nz.png',
-  ]);
+const texture = useLoader(CubeTextureLoader, [
+  `${import.meta.env.BASE_URL}textures/px.png`,
+  `${import.meta.env.BASE_URL}textures/nx.png`,
+  `${import.meta.env.BASE_URL}textures/py.png`,
+  `${import.meta.env.BASE_URL}textures/ny.png`,
+  `${import.meta.env.BASE_URL}textures/pz.png`,
+  `${import.meta.env.BASE_URL}textures/nz.png`,
+]);
 
   return (
     <primitive attach="background" object={texture} />
