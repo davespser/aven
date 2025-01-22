@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { OrbitControls, PerspectiveCamera, useTexture } from '@react-three/drei';
+import * as THREE from 'three'; // Importar THREE
 import TiledMap1 from './TiledMap1';
 import TiledMap2 from './TiledMap2';
 import ModeloPatio from './ModeloPatio';
