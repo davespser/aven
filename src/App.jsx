@@ -20,7 +20,7 @@ function Skybox() {
 
   return (
     <mesh scale={[-1, 1, 1]} position={[0, 0, 0]}>
-      <boxGeometry args={[500, 500, 500]} /> {/* Tamaño del cubo */}
+      <boxGeometry args={[2000, 2000, 2000]} /> {/* Tamaño del cubo */}
       <meshBasicMaterial attachArray="material" map={textures.px} side={THREE.BackSide} />
       <meshBasicMaterial attachArray="material" map={textures.nx} side={THREE.BackSide} />
       <meshBasicMaterial attachArray="material" map={textures.py} side={THREE.BackSide} />
