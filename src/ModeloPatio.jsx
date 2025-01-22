@@ -10,7 +10,7 @@ import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader';
 import * as THREE from 'three';
 
 function ModeloPatio() {
-  const { scene } = useGLTF('/aven/models/patio.glb');
+  const { scene } = useGLTF('/aven/models/patio2.glb');
   const { gl, camera, scene: threeScene, size } = useThree();
   const composer = useRef();
 
