@@ -9,6 +9,9 @@ import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass';
 import { FXAAShader } from 'three/examples/jsm/shaders/FXAAShader';
 import * as THREE from 'three';
 
+// Función para convertir grados a radianes
+const degToRad = (degrees) => (degrees * Math.PI) / 180;
+
 function ModeloPatio() {
   const { scene } = useGLTF('/aven/models/patio2.glb');
   const { gl, camera, scene: threeScene, size } = useThree();
@@ -53,8 +56,13 @@ function ModeloPatio() {
 
   // Configurar la posición, escala y rotación del modelo
   scene.position.set(0, -10, 0); // Ajusta la posición (X, Y, Z)
-  scene.scale.set(40, 40, 40); // Ajusta la escala (X, Y, Z)
-  
+  scene.scale.set(120, 120, 120); // Ajusta la escala (X, Y, Z)
+  scene.rotation.set(
+    degToRad(30), // Rotación en X (en grados)
+    degToRad(90), // Rotación en Y (en grados)
+    degToRad(0)   // Rotación en Z (en grados)
+  );
+
   return <primitive object={scene} />;
 }
 
