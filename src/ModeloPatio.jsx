@@ -55,12 +55,12 @@ function ModeloPatio() {
   }, [gl, camera, threeScene, scene, size]);
 
   // Configurar la posición, escala y rotación del modelo
-  scene.position.set(-20, -50, 0); // Ajusta la posición (X, Y, Z)
+  scene.position.set(-20, -55, 0); // Ajusta la posición (X, Y, Z)
   scene.scale.set(150, 150, 150); // Ajusta la escala (X, Y, Z)
   scene.rotation.set(
     degToRad(45), // Rotación en X (en grados)
     degToRad(90), // Rotación en Y (en grados)
-    degToRad(-30)   // Rotación en Z (en grados)
+    degToRad(-40)   // Rotación en Z (en grados)
   );
 
   return <primitive object={scene} />;
