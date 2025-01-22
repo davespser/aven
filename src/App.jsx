@@ -1,32 +1,37 @@
 import React, { useState } from 'react';
-import { Canvas, useLoader } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera } from '@react-three/drei';
-import { CubeTextureLoader } from 'three';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, PerspectiveCamera, useTexture } from '@react-three/drei';
 import TiledMap1 from './TiledMap1';
 import TiledMap2 from './TiledMap2';
 import ModeloPatio from './ModeloPatio';
 import Interface from './Interface';
 
 function Skybox() {
-  // Cargar las texturas del skybox
-import { resolve } from 'path';
-
-const texture = useLoader(CubeTextureLoader, [
-  new URL('./models/px.png', import.meta.url).href,
-  new URL('./models/nx.png', import.meta.url).href,
-  new URL('./textures/py.png', import.meta.url).href,
-  new URL('./textures/ny.png', import.meta.url).href,
-  new URL('./textures/pz.png', import.meta.url).href,
-  new URL('./textures/nz.png', import.meta.url).href,
-]);
+  // Cargar las texturas para cada cara del cubo
+  const textures = useTexture({
+    px: './models/px.png',
+    nx: './models/nx.png',
+    py: './textures/py.png',
+    ny: './textures/ny.png',
+    pz: './textures/pz.png',
+    nz: './textures/nz.png',
+  });
 
   return (
-    <primitive attach="background" object={texture} />
+    <mesh scale={[-1, 1, 1]} position={[0, 0, 0]}>
+      <boxGeometry args={[500, 500, 500]} /> {/* Tamaño del cubo */}
+      <meshBasicMaterial attachArray="material" map={textures.px} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.nx} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.py} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.ny} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.pz} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.nz} side={THREE.BackSide} />
+    </mesh>
   );
 }
 
 export default function App() {
-  const [selectedCharacter, setSelectedCharacter] = useState("pandawa");
+  const [selectedCharacter, setSelectedCharacter] = useState('pandawa');
 
   return (
     <>
@@ -51,7 +56,7 @@ export default function App() {
           return () => window.removeEventListener('resize', resizeHandler);
         }}
       >
-        {/* Skybox personalizado */}
+        {/* Skybox con cubo */}
         <Skybox />
 
         {/* Iluminación */}
