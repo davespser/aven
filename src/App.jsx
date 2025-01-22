@@ -10,10 +10,10 @@ import Interface from './Interface';
 function Skybox() {
   // Cargar las texturas para cada cara del cubo
   const textures = useTexture({
-    px: './models/px.png',
-    nx: './models/nx.png',
-    py: './textures/py.png',
-    ny: './textures/ny.png',
+    px: './models/py.png',
+    nx: './models/ny.png',
+    py: './textures/nx.png',
+    ny: './textures/px.png',
     pz: './textures/pz.png',
     nz: './textures/nz.png',
   });
