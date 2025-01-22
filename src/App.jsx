@@ -9,13 +9,15 @@ import Interface from './Interface';
 
 function Skybox() {
   // Cargar las texturas del skybox
+import { resolve } from 'path';
+
 const texture = useLoader(CubeTextureLoader, [
-  './aven/models/px.png',
-  './models/nx.png',
-  '/dist/textures/py.png',
-  '/dist/textures/ny.png',
-  '/dist/textures/pz.png',
-  '/dist/textures/nz.png',
+  new URL('./models/px.png', import.meta.url).href,
+  new URL('./models/nx.png', import.meta.url).href,
+  new URL('./textures/py.png', import.meta.url).href,
+  new URL('./textures/ny.png', import.meta.url).href,
+  new URL('./textures/pz.png', import.meta.url).href,
+  new URL('./textures/nz.png', import.meta.url).href,
 ]);
 
   return (
