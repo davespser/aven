@@ -8,8 +8,8 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          
-          dist: 'models', // Carpeta destino en dist
+          src: 'models/*', // Carpeta de modelos
+          dest: 'models', // Carpeta destino en dist
         },
       ],
     }),
@@ -17,6 +17,5 @@ export default defineConfig({
   base: '/aven/',
   build: {
     outDir: 'dist',
-    assetsInclude: ['**/*.glb'], // Incluir los archivos .glb en el proceso de construcción
   },
 });
