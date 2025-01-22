@@ -53,9 +53,8 @@ function ModeloPatio() {
 
   // Configurar la posición, escala y rotación del modelo
   scene.position.set(0, -10, 0); // Ajusta la posición (X, Y, Z)
-  scene.scale.set(20, 20, 20); // Ajusta la escala (X, Y, Z)
-  scene.rotation.set(Math.PI / 4, Math.PI / 4, 0); // Ajusta la rotación (en radianes)
-
+  scene.scale.set(40, 40, 40); // Ajusta la escala (X, Y, Z)
+  
   return <primitive object={scene} />;
 }
 
