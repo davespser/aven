@@ -10,12 +10,12 @@ import Interface from './Interface';
 function Skybox() {
   // Cargar las texturas del skybox
 const texture = useLoader(CubeTextureLoader, [
-  '/textures/px.png',
-  '/textures/nx.png',
-  '/textures/py.png',
-  '/textures/ny.png',
-  '/textures/pz.png',
-  '/textures/nz.png',
+  '/dist/textures/px.png',
+  '/dist/textures/nx.png',
+  '/dist/textures/py.png',
+  '/dist/textures/ny.png',
+  '/dist/textures/pz.png',
+  '/dist/textures/nz.png',
 ]);
 
   return (
