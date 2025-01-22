@@ -8,8 +8,8 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: 'models/*', // Carpeta de modelos
-          dest: 'models', // Carpeta destino en dist
+          src: 'models/patio2.glb', // Especifica el archivo exacto
+          dest: 'models',
         },
       ],
     }),
@@ -18,4 +18,5 @@ export default defineConfig({
   build: {
     outDir: 'dist',
   },
+  assetsInclude: ['**/*.glb'], // Asegura que los archivos .glb sean tratados como activos
 });
