@@ -8,7 +8,7 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: './aven/models/patio2.glb', // Especifica el archivo exacto
+           // Especifica el archivo exacto
           dest: 'models',           // Directorio destino dentro del build
           flatten: false,           // Conserva la estructura de carpetas original
         },
