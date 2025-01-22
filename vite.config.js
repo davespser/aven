@@ -8,8 +8,8 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-          src: 'models/*', // Carpeta de modelos
-          dest: 'models', // Carpeta destino en dist
+          
+          dist: 'models', // Carpeta destino en dist
         },
       ],
     }),
