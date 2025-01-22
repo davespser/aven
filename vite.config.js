@@ -1,10 +1,22 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { viteStaticCopy } from 'vite-plugin-static-copy';
 
 export default defineConfig({
-  plugins: [react()],
-  base: '/aven/', // Prefijo para GitHub Pages
+  plugins: [
+    react(),
+    viteStaticCopy({
+      targets: [
+        {
+          src: 'models/*', // Carpeta de modelos
+          dest: 'models', // Carpeta destino en dist
+        },
+      ],
+    }),
+  ],
+  base: '/aven/',
   build: {
-    outDir: 'dist', // Carpeta de salida
+    outDir: 'dist',
+    assetsInclude: ['**/*.glb'], // Incluir los archivos .glb en el proceso de construcción
   },
 });
