@@ -8,9 +8,8 @@ export default defineConfig({
     viteStaticCopy({
       targets: [
         {
-           // Especifica el archivo exacto
-          dest: 'models',           // Directorio destino dentro del build
-          flatten: false,           // Conserva la estructura de carpetas original
+          src: 'public/models/**/*', // Copia todos los archivos en la carpeta models
+          dest: 'models',           // Coloca los archivos en dist/models
         },
       ],
     }),
@@ -20,5 +19,5 @@ export default defineConfig({
     outDir: 'dist', // Carpeta de salida para el build
     emptyOutDir: true, // Limpia la carpeta de salida antes de construir
   },
-  assetsInclude: ['**/*.glb'], // Incluye archivos .glb como activos
+  assetsInclude: ['**/*.glb'], // Asegura que los archivos GLB sean tratados como activos
 });
