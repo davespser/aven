@@ -61,7 +61,7 @@ export default function App() {
         <Skybox />
 
         {/* Iluminación */}
-        <ambientLight intensity={0.5} />
+        <ambientLight intensity={4.5} />
         <directionalLight position={[1, 2, 3]} intensity={1.5} castShadow />
         <PerspectiveCamera makeDefault position={[0, 20, 30]} fov={75} />
 
