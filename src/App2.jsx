@@ -1,13 +1,37 @@
-import React, { useRef } from 'react';
-import { Canvas } from '@react-three/fiber';
-import { Plane } from '@react-three/drei';
-import * as THREE from 'three';
+import React, { useRef, useEffect } from "react";
+import { Canvas } from "@react-three/fiber";
+import { Plane } from "@react-three/drei";
+import * as THREE from "three";
 
-const OceanTile = () => {
+function Skybox() {
+  // Cargar las texturas para cada cara del cubo
+  const textures = useTexture({
+    px: './models/py.png',
+    nx: './models/ny.png',
+    py: './textures/nx.png',
+    ny: './textures/px.png',
+    pz: './textures/pz.png',
+    nz: './textures/nz.png',
+  });
+
+  return (
+    <mesh scale={[-1, 1, 1]} position={[0, 0, 0]}>
+      <boxGeometry args={[2000, 2000, 2000]} /> {/* Tamaño del cubo */}
+      <meshBasicMaterial attachArray="material" map={textures.px} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.nx} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.py} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.ny} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.pz} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.nz} side={THREE.BackSide} />
+    </mesh>
+  );
+}
+
+const OceanTile = ({ position }) => {
   const materialRef = useRef();
 
-  // Actualiza el desplazamiento del material para crear un efecto de movimiento
-  React.useEffect(() => {
+  // Animación para las olas
+  useEffect(() => {
     const animate = () => {
       if (materialRef.current) {
         materialRef.current.uniforms.uTime.value += 0.02;
@@ -18,7 +42,7 @@ const OceanTile = () => {
   }, []);
 
   return (
-    <Plane args={[10, 10, 64, 64]} rotation={[-Math.PI / 2, 0, 0]}>
+    <Plane args={[10, 10, 64, 64]} position={position} rotation={[-Math.PI / 2, 0, 0]}>
       <shaderMaterial
         ref={materialRef}
         attach="material"
@@ -59,12 +83,33 @@ const fragmentShader = `
   }
 `;
 
+const OceanGrid = () => {
+  const gridSize = 3; // Número de tiles en cada dirección (3x3 cuadrícula)
+  const tileSize = 10; // Tamaño de cada tile (10x10 unidades)
+
+  // Generar posiciones para los tiles
+  const tiles = [];
+  for (let x = -Math.floor(gridSize / 2); x <= Math.floor(gridSize / 2); x++) {
+    for (let z = -Math.floor(gridSize / 2); z <= Math.floor(gridSize / 2); z++) {
+      tiles.push([x * tileSize, 0, z * tileSize]);
+    }
+  }
+
+  return (
+    <>
+      {tiles.map((position, index) => (
+        <OceanTile key={index} position={position} />
+      ))}
+    </>
+  );
+};
+
 const App = () => {
   return (
-    <Canvas camera={{ position: [0, 5, 10], fov: 45 }}>
+    <Canvas camera={{ position: [0, 10, 20], fov: 45 }}>
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={1} />
-      <OceanTile />
+      <OceanGrid />
     </Canvas>
   );
 };
