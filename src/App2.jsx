@@ -39,7 +39,7 @@ const Ocean = () => {
 
       {/* Plano del fondo */}
       <Plane args={[100, 100]} rotation={[-Math.PI / 2, 0, 0]} position={[0, -3, 0]}>
-        <meshStandardMaterial color={new THREE.Color(0x824fdb)} side={THREE.DoubleSide} />
+        <meshStandardMaterial color={new THREE.Color(0x2b1a49)} side={THREE.DoubleSide} />
       </Plane>
     </>
   );
@@ -58,7 +58,7 @@ const Skybox = () => {
 
   return (
     <mesh scale={[-1, 1, 1]} position={[0, 0, 0]}>
-      <boxGeometry args={[2000, 2000, 2000]} /> {/* Tamaño del cubo */}
+      <boxGeometry args={[500, 500, 500]} /> {/* Tamaño del cubo */}
       <meshBasicMaterial attachArray="material" map={textures.px} side={THREE.BackSide} />
       <meshBasicMaterial attachArray="material" map={textures.nx} side={THREE.BackSide} />
       <meshBasicMaterial attachArray="material" map={textures.py} side={THREE.BackSide} />
@@ -80,7 +80,7 @@ const App = () => {
         top: 0,
         left: 0,
       }}
-      camera={{ position: [50, 50, 50], fov: 250 }}
+      camera={{ position: [50, 50, 50], fov: 100 }}
     >
       <ambientLight intensity={4.5} />
       <directionalLight position={[10, 10, 5]} intensity={1.5} />
