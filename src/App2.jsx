@@ -106,7 +106,26 @@ const OceanGrid = () => {
 
 const App = () => {
   return (
-    <Canvas camera={{ position: [0, 20, 30], fov: 75 }}>
+    <Canvas shadows
+        style={{
+          width: '100vw',
+          height: '100vh',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+        }}
+        onCreated={({ gl }) => {
+          gl.setSize(window.innerWidth, window.innerHeight);
+          gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+          const resizeHandler = () => {
+            gl.setSize(window.innerWidth, window.innerHeight);
+            gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+          };
+          window.addEventListener('resize', resizeHandler);
+          return () => window.removeEventListener('resize', resizeHandler);
+        }}
+        camera={{ position: [0, 20, 30], fov: 75 }}>
               {/* Skybox con cubo */}
         <Skybox />
       <ambientLight intensity={0.5} />
