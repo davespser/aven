@@ -1,4 +1,4 @@
-aquí la textura estaba bien y subdividida import React from "react"; import { Canvas } from "@react-three/fiber"; import { Plane, OrbitControls } from "@react-three/drei"; import * as THREE from "three"; import { useTexture } from "@react-three/drei";
+  import React from "react"; import { Canvas } from "@react-three/fiber"; import { Plane, OrbitControls } from "@react-three/drei"; import * as THREE from "three"; import { useTexture } from "@react-three/drei";
 
 const Ocean = () => { const waveTexture = useTexture('./textures/olas.png'); // Cargamos la textura de las olas
 
