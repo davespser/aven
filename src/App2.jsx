@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Plane, OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
 import { useTexture } from "@react-three/drei";
@@ -35,7 +35,6 @@ const Ocean = () => {
       for (let i = 0; i < vertices.length; i += 3) {
         const x = vertices[i];
         const y = vertices[i + 1];
-        const z = vertices[i + 2];
         vertices[i + 2] = Math.sin((x + time) * 0.3) * 0.5 + Math.cos((y + time) * 0.2) * 0.3; // Modificar la posición Z
       }
 
@@ -69,14 +68,11 @@ const Ocean = () => {
   );
 };
 
-const App = () => {
-  const canvasRef = useRef();
+const Skybox = () => {
+  const { scene } = useThree();
 
   useEffect(() => {
-    const scene = canvasRef.current.scene;
     const loader = new THREE.CubeTextureLoader();
-
-    // Cargamos la textura cúbica
     const texture = loader.load([
       './textures/cubemap.png', // Imagen para todos los lados del cubemap
       './textures/cubemap.png',
@@ -85,13 +81,15 @@ const App = () => {
       './textures/cubemap.png',
       './textures/cubemap.png',
     ]);
+    scene.background = texture; // Establecemos el fondo de la escena
+  }, [scene]);
 
-    scene.background = texture; // Establecemos el fondo de la escena con la textura cúbica
-  }, []);
+  return null; // Este componente no renderiza nada visual directamente
+};
 
+const App = () => {
   return (
     <Canvas
-      ref={canvasRef}
       style={{
         width: '100vw',
         height: '100vh',
@@ -103,6 +101,7 @@ const App = () => {
     >
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={1} />
+      <Skybox /> {/* Cielo cúbico */}
       <Ocean />
       <OrbitControls /> {/* Cámara orbital */}
     </Canvas>
