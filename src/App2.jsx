@@ -46,8 +46,8 @@ const OceanTile = ({ position }) => {
       <shaderMaterial
         ref={materialRef}
         attach="material"
-        vertexShader={vertexShader}
-        fragmentShader={toonFragmentShader} // Usamos el shader de Toon Shading
+        vertexShader={oceanVertexShader} // Cambié el nombre del shader de vértices
+        fragmentShader={toonFragmentShader} // Shader de toon shading
         transparent={true} // Habilita la transparencia
         uniforms={{
           uTime: { value: 0 },
@@ -59,17 +59,22 @@ const OceanTile = ({ position }) => {
   );
 };
 
-// Vertex Shader: Controla la animación de las olas
-const vertexShader = `
+// Vertex Shader: Movimiento de las olas
+const oceanVertexShader = `
   varying vec2 vUv;
   uniform float uTime;
 
   void main() {
     vUv = uv;
-    vec3 newPosition = position;
-    newPosition.z += sin(position.x * 2.0 + uTime) * 0.5; // Movimiento de olas
-    newPosition.z += cos(position.y * 2.0 + uTime) * 0.5;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+    
+    // Movimiento de las olas (combinando coseno y seno en función de uTime y las coordenadas de UV)
+    vec3 modifiedPosition = position;
+    
+    // Se crea el movimiento en Z, usando las coordenadas (x, y) y el tiempo (uTime)
+    modifiedPosition.z += 0.05 * (cos(0.5 + uTime + 100.0 * vUv.x) + sin(0.5 * uTime + 100.0 * vUv.y));
+    
+    // Aplicar la nueva posición
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(modifiedPosition, 1.0);
   }
 `;
 
@@ -138,7 +143,7 @@ const App = () => {
         window.addEventListener('resize', resizeHandler);
         return () => window.removeEventListener('resize', resizeHandler);
       }}
-      camera={{ position: [0, 20, 30], fov: 300 }}
+      camera={{ position: [0, 20, 30], fov: 75 }}
     >
       {/* Skybox con cubo */}
       <Skybox />
