@@ -3919,21 +3919,17 @@ No matching component was found for:
   uniform float uOpacity;
   uniform sampler2D uWaveTexture; // Uniform para la textura de las olas
 
-  // Función para aplicar toon shading
-  float toonShading(float value) {
-    return smoothstep(0.2, 0.8, value); // Define cómo se divide la luz en tonos
-  }
-
   void main() {
     // Obtenemos la luz direccional (simulada para este ejemplo)
     float light = dot(vec3(0.0, 0.0, 1.0), normalize(vec3(0.5, 0.5, 1.0))); 
-    float shadedLight = toonShading(light);
+    float shadedLight = smoothstep(0.2, 0.8, light); // Toon shading: divide la luz en tonos
 
-    // Aplicamos la textura de las olas (usando las coordenadas UV y el movimiento de las olas)
-    vec4 waveColor = texture2D(uWaveTexture, vUv * 5.0 + vec2(0.0, uTime * 0.1)); // Movimiento de la textura en el eje Y
+    // Usamos la textura de las olas, haciendo que se mueva con el tiempo
+    vec4 waveColor = texture2D(uWaveTexture, vUv * 5.0 + vec2(0.0, uTime * 0.1)); // Movimiento de la textura de olas
+
+    // Mezclamos la textura con el color base dependiendo de la fuerza de la ola
+    vec3 color = mix(uColor * shadedLight, waveColor.rgb, 0.8); // 0.8 ajusta la influencia de la textura
     
-    // Aplicamos el toon shading y la textura
-    vec3 color = uColor * shadedLight + waveColor.rgb * 0.5;
-    gl_FragColor = vec4(color, uOpacity); // Control de transparencia
+    gl_FragColor = vec4(color, uOpacity); // Control de opacidad
   }
 `,_I=()=>{const t=[];for(let n=-Math.floor(3/2);n<=Math.floor(3/2);n++)for(let i=-Math.floor(3/2);i<=Math.floor(3/2);i++)t.push([n*10,0,i*10]);return gn.jsx(gn.Fragment,{children:t.map((n,i)=>gn.jsx(gI,{position:n},i))})},xI=()=>gn.jsxs(dI,{shadows:!0,style:{width:"100vw",height:"100vh",position:"absolute",top:0,left:0},onCreated:({gl:s})=>{s.setSize(window.innerWidth,window.innerHeight),s.setPixelRatio(Math.min(window.devicePixelRatio,2));const e=()=>{s.setSize(window.innerWidth,window.innerHeight),s.setPixelRatio(Math.min(window.devicePixelRatio,2))};return window.addEventListener("resize",e),()=>window.removeEventListener("resize",e)},camera:{position:[0,20,30],fov:75},children:[gn.jsx(mI,{}),gn.jsx("ambientLight",{intensity:.5}),gn.jsx("directionalLight",{position:[10,10,5],intensity:1}),gn.jsx(_I,{})]});$1.createRoot(document.getElementById("root")).render(gn.jsx(mt.StrictMode,{children:gn.jsx(xI,{})}));
