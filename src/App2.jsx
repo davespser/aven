@@ -1,10 +1,10 @@
-import React, { useRef, useEffect, } from "react";
+import React, { useRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { Plane, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 
+// Skybox con texturas
 function Skybox() {
-  // Cargar las texturas para cada cara del cubo
   const textures = useTexture({
     px: './textures/py.png',
     nx: './textures/ny.png',
@@ -27,6 +27,7 @@ function Skybox() {
   );
 }
 
+// OceanTile con Toon Shading
 const OceanTile = ({ position }) => {
   const materialRef = useRef();
 
@@ -46,19 +47,19 @@ const OceanTile = ({ position }) => {
         ref={materialRef}
         attach="material"
         vertexShader={vertexShader}
-        fragmentShader={fragmentShader}
+        fragmentShader={toonFragmentShader} // Usamos el shader de Toon Shading
         transparent={true} // Habilita la transparencia
         uniforms={{
           uTime: { value: 0 },
-          uColor: { value: new THREE.Color(0x31004E) },
-          uOpacity: { value: 0.6 }, // Controla la opacidad
+          uColor: { value: new THREE.Color(0x31004E) }, // Color base del océano
+          uOpacity: { value: 0.4 }, // Control de opacidad
         }}
       />
     </Plane>
   );
 };
 
-// Vertex Shader
+// Vertex Shader: Controla la animación de las olas
 const vertexShader = `
   varying vec2 vUv;
   uniform float uTime;
@@ -66,21 +67,31 @@ const vertexShader = `
   void main() {
     vUv = uv;
     vec3 newPosition = position;
-    newPosition.z += sin(position.x * 2.0 + uTime) * 0.2;
-    newPosition.z += cos(position.y * 2.0 + uTime) * 0.2;
+    newPosition.z += sin(position.x * 2.0 + uTime) * 0.5; // Movimiento de olas
+    newPosition.z += cos(position.y * 2.0 + uTime) * 0.5;
     gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
   }
 `;
 
-// Fragment Shader
-const fragmentShader = `
+// Fragment Shader: Toon Shading
+const toonFragmentShader = `
   varying vec2 vUv;
   uniform vec3 uColor;
+  uniform float uOpacity;
+
+  // Función para aplicar toon shading
+  float toonShading(float value) {
+    return smoothstep(0.2, 0.8, value); // Define cómo se divide la luz en tonos
+  }
 
   void main() {
-    float wave = sin(vUv.y * 10.0) * 0.1;
-    vec3 color = uColor + vec3(wave, wave * 0.5, 0.0);
-    gl_FragColor = vec4(color, 1.0);
+    // Obtenemos la luz direccional (simulada para este ejemplo)
+    float light = dot(vec3(0.0, 0.0, 1.0), normalize(vec3(0.5, 0.5, 1.0))); 
+    float shadedLight = toonShading(light);
+
+    // Aplicamos el toon shading y la transparencia
+    vec3 color = uColor * shadedLight;
+    gl_FragColor = vec4(color, uOpacity); // Control de transparencia
   }
 `;
 
@@ -107,28 +118,30 @@ const OceanGrid = () => {
 
 const App = () => {
   return (
-    <Canvas shadows
-        style={{
-          width: '100vw',
-          height: '100vh',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-        }}
-        onCreated={({ gl }) => {
+    <Canvas
+      shadows
+      style={{
+        width: '100vw',
+        height: '100vh',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+      }}
+      onCreated={({ gl }) => {
+        gl.setSize(window.innerWidth, window.innerHeight);
+        gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const resizeHandler = () => {
           gl.setSize(window.innerWidth, window.innerHeight);
           gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-
-          const resizeHandler = () => {
-            gl.setSize(window.innerWidth, window.innerHeight);
-            gl.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-          };
-          window.addEventListener('resize', resizeHandler);
-          return () => window.removeEventListener('resize', resizeHandler);
-        }}
-        camera={{ position: [0, 20, 30], fov: 75 }}>
-              {/* Skybox con cubo */}
-        <Skybox />
+        };
+        window.addEventListener('resize', resizeHandler);
+        return () => window.removeEventListener('resize', resizeHandler);
+      }}
+      camera={{ position: [0, 20, 30], fov: 300 }}
+    >
+      {/* Skybox con cubo */}
+      <Skybox />
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={1} />
       <OceanGrid />
