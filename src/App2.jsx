@@ -25,6 +25,7 @@ function Skybox() {
       <meshBasicMaterial attach="material-5" map={textures.nz} side={THREE.BackSide} />
     </mesh>
   );
+}
 
 const OceanTile = ({ position }) => {
   const materialRef = useRef();
