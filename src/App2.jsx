@@ -107,6 +107,8 @@ const OceanGrid = () => {
 const App = () => {
   return (
     <Canvas camera={{ position: [0, 10, 20], fov: 45 }}>
+              {/* Skybox con cubo */}
+        <Skybox />
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={1} />
       <OceanGrid />
