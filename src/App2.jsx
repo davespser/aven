@@ -70,8 +70,28 @@ const Ocean = () => {
 };
 
 const App = () => {
+  const canvasRef = useRef();
+
+  useEffect(() => {
+    const scene = canvasRef.current.scene;
+    const loader = new THREE.CubeTextureLoader();
+
+    // Cargamos la textura cúbica
+    const texture = loader.load([
+      './textures/cubemap.png', // Imagen para todos los lados del cubemap
+      './textures/cubemap.png',
+      './textures/cubemap.png',
+      './textures/cubemap.png',
+      './textures/cubemap.png',
+      './textures/cubemap.png',
+    ]);
+
+    scene.background = texture; // Establecemos el fondo de la escena con la textura cúbica
+  }, []);
+
   return (
     <Canvas
+      ref={canvasRef}
       style={{
         width: '100vw',
         height: '100vh',
