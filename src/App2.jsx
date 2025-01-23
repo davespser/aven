@@ -26,16 +26,24 @@ const Ocean = () => {
   }, [waveTexture]);
 
   return (
-    <Plane args={[100, 100, 100, 100]} rotation={[-Math.PI / 2, 0, 0]}>
-      <meshStandardMaterial
-        ref={materialRef}
-        map={waveTexture} // Asignamos la textura de las olas
-        color={new THREE.Color(0x4A90E2)} // Azul para el agua
-        transparent={true}
-        opacity={0.9} // Control de transparencia
-        side={THREE.DoubleSide}
-      />
-    </Plane>
+    <>
+      {/* Plano del océano */}
+      <Plane args={[100, 100, 100, 100]} rotation={[-Math.PI / 2, 0, 0]}>
+        <meshStandardMaterial
+          ref={materialRef}
+          map={waveTexture} // Asignamos la textura de las olas
+          color={new THREE.Color(0x4A90E2)} // Azul para el agua
+          transparent={true}
+          opacity={0.7} // Transparencia más apreciable
+          side={THREE.DoubleSide}
+        />
+      </Plane>
+      
+      {/* Plano del fondo */}
+      <Plane args={[100, 100]} rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}>
+        <meshStandardMaterial color={new THREE.Color(0x2E2B5F)} side={THREE.DoubleSide} />
+      </Plane>
+    </>
   );
 };
 
