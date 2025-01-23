@@ -41,7 +41,7 @@ const Ocean = () => {
       
       {/* Plano del fondo */}
       <Plane args={[100, 100]} rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}>
-        <meshStandardMaterial color={new THREE.Color(0x2E2B5F)} side={THREE.DoubleSide} />
+        <meshStandardMaterial color={new THREE.Color(0x009fff)} side={THREE.DoubleSide} />
       </Plane>
     </>
   );
