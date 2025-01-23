@@ -1,13 +1,11 @@
 import React, { useRef, useEffect } from "react";
-import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Plane, OrbitControls } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, useTexture, Plane } from "@react-three/drei";
 import * as THREE from "three";
-import { useTexture } from "@react-three/drei";
 
 const Ocean = () => {
   const waveTexture = useTexture('./textures/olas.png'); // Cargamos la textura de las olas
   const materialRef = useRef();
-  const planeRef = useRef();
 
   // Configuración para repetir la textura
   waveTexture.wrapS = THREE.RepeatWrapping;
@@ -15,44 +13,23 @@ const Ocean = () => {
   waveTexture.repeat.set(10, 10); // Repetir la textura 10x10 en toda la superficie
 
   useEffect(() => {
-    const animateTexture = () => {
+    const animate = () => {
       if (materialRef.current) {
-        // Desplazamiento de la textura en el tiempo
         waveTexture.offset.y += 0.005; // Movimiento vertical
         waveTexture.offset.x += 0.0025; // Movimiento horizontal
       }
-      requestAnimationFrame(animateTexture);
+      requestAnimationFrame(animate);
     };
-    animateTexture();
+    animate();
   }, [waveTexture]);
-
-  useFrame(({ clock }) => {
-    if (planeRef.current) {
-      const time = clock.getElapsedTime();
-      const vertices = planeRef.current.geometry.attributes.position.array;
-
-      // Animar los vértices para simular oleaje
-      for (let i = 0; i < vertices.length; i += 3) {
-        const x = vertices[i];
-        const y = vertices[i + 1];
-        vertices[i + 2] = Math.sin((x + time) * 0.3) * 0.5 + Math.cos((y + time) * 0.2) * 0.3; // Modificar la posición Z
-      }
-
-      planeRef.current.geometry.attributes.position.needsUpdate = true;
-    }
-  });
 
   return (
     <>
       {/* Plano del océano */}
-      <Plane
-        args={[100, 100, 100, 100]} // Más subdivisiones para un oleaje suave
-        ref={planeRef}
-        rotation={[-Math.PI / 2, 0, 0]}
-      >
+      <Plane args={[100, 100, 100, 100]} rotation={[-Math.PI / 2, 0, 0]}>
         <meshStandardMaterial
           ref={materialRef}
-          map={waveTexture} // Asignamos la textura de las olas
+          map={waveTexture}
           color={new THREE.Color(0xFFFFFF)} // Azul para el agua
           transparent={true}
           opacity={0.7} // Transparencia más apreciable
@@ -69,22 +46,27 @@ const Ocean = () => {
 };
 
 const Skybox = () => {
-  const { scene } = useThree();
+  // Cargar las texturas para cada cara del cubo
+  const textures = useTexture({
+    px: './textures/py.png',
+    nx: './textures/ny.png',
+    py: './textures/nx.png',
+    ny: './textures/px.png',
+    pz: './textures/pz.png',
+    nz: './textures/nz.png',
+  });
 
-  useEffect(() => {
-    const loader = new THREE.CubeTextureLoader();
-    const texture = loader.load([
-      './textures/cubemap.png', // Imagen para todos los lados del cubemap
-      './textures/cubemap.png',
-      './textures/cubemap.png',
-      './textures/cubemap.png',
-      './textures/cubemap.png',
-      './textures/cubemap.png',
-    ]);
-    scene.background = texture; // Establecemos el fondo de la escena
-  }, [scene]);
-
-  return null; // Este componente no renderiza nada visual directamente
+  return (
+    <mesh scale={[-1, 1, 1]} position={[0, 0, 0]}>
+      <boxGeometry args={[2000, 2000, 2000]} /> {/* Tamaño del cubo */}
+      <meshBasicMaterial attachArray="material" map={textures.px} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.nx} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.py} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.ny} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.pz} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.nz} side={THREE.BackSide} />
+    </mesh>
+  );
 };
 
 const App = () => {
@@ -97,12 +79,12 @@ const App = () => {
         top: 0,
         left: 0,
       }}
-      camera={{ position: [50, 50, 50], fov: 75 }} // Posición inicial de la cámara
+      camera={{ position: [50, 50, 50], fov: 75 }}
     >
-      <ambientLight intensity={0.5} />
-      <directionalLight position={[10, 10, 5]} intensity={1} />
+      <ambientLight intensity={4.5} />
+      <directionalLight position={[10, 10, 5]} intensity={1.5} />
       <Skybox /> {/* Cielo cúbico */}
-      <Ocean />
+      <Ocean /> {/* Océano */}
       <OrbitControls /> {/* Cámara orbital */}
     </Canvas>
   );
