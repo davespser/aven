@@ -3929,9 +3929,9 @@ No matching component was found for:
     float light = dot(vec3(0.0, 0.0, 1.0), normalize(vec3(0.5, 0.5, 1.0))); 
     float shadedLight = toonShading(light);
 
-    // Aplicamos la textura de olas (usando las coordenadas UV)
-    vec4 waveColor = texture2D(uWaveTexture, vUv * 5.0); // Aumentamos la escala de la textura para que se repita
-
+    // Aplicamos la textura de las olas (usando las coordenadas UV y el movimiento de las olas)
+    vec4 waveColor = texture2D(uWaveTexture, vUv * 5.0 + vec2(0.0, uTime * 0.1)); // Movimiento de la textura en el eje Y
+    
     // Aplicamos el toon shading y la textura
     vec3 color = uColor * shadedLight + waveColor.rgb * 0.5;
     gl_FragColor = vec4(color, uOpacity); // Control de transparencia

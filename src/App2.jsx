@@ -30,7 +30,6 @@ function Skybox() {
 // OceanTile con Toon Shading
 const OceanTile = ({ position }) => {
   const materialRef = useRef();
-
   const waveTexture = useTexture('./textures/olas.png'); // Cargamos la textura de las olas
 
   useEffect(() => {
@@ -88,22 +87,18 @@ const toonFragmentShader = `
   uniform float uOpacity;
   uniform sampler2D uWaveTexture; // Uniform para la textura de las olas
 
-  // Función para aplicar toon shading
-  float toonShading(float value) {
-    return smoothstep(0.2, 0.8, value); // Define cómo se divide la luz en tonos
-  }
-
   void main() {
     // Obtenemos la luz direccional (simulada para este ejemplo)
     float light = dot(vec3(0.0, 0.0, 1.0), normalize(vec3(0.5, 0.5, 1.0))); 
-    float shadedLight = toonShading(light);
+    float shadedLight = smoothstep(0.2, 0.8, light); // Toon shading: divide la luz en tonos
 
-    // Aplicamos la textura de las olas (usando las coordenadas UV y el movimiento de las olas)
-    vec4 waveColor = texture2D(uWaveTexture, vUv * 5.0 + vec2(0.0, uTime * 0.1)); // Movimiento de la textura en el eje Y
+    // Usamos la textura de las olas, haciendo que se mueva con el tiempo
+    vec4 waveColor = texture2D(uWaveTexture, vUv * 5.0 + vec2(0.0, uTime * 0.1)); // Movimiento de la textura de olas
+
+    // Mezclamos la textura con el color base dependiendo de la fuerza de la ola
+    vec3 color = mix(uColor * shadedLight, waveColor.rgb, 0.8); // 0.8 ajusta la influencia de la textura
     
-    // Aplicamos el toon shading y la textura
-    vec3 color = uColor * shadedLight + waveColor.rgb * 0.5;
-    gl_FragColor = vec4(color, uOpacity); // Control de transparencia
+    gl_FragColor = vec4(color, uOpacity); // Control de opacidad
   }
 `;
 
