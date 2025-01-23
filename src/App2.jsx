@@ -10,7 +10,7 @@ const Ocean = () => {
   // Configuración para repetir la textura
   waveTexture.wrapS = THREE.RepeatWrapping;
   waveTexture.wrapT = THREE.RepeatWrapping;
-  waveTexture.repeat.set(10, 10); // Repetir la textura 10x10 en toda la superficie
+  waveTexture.repeat.set(50, 50); // Repetir la textura 10x10 en toda la superficie
 
   useEffect(() => {
     const animate = () => {
@@ -26,7 +26,7 @@ const Ocean = () => {
   return (
     <>
       {/* Plano del océano */}
-      <Plane args={[100, 100, 100, 100]} rotation={[-Math.PI / 2, 0, 0]}>
+      <Plane args={[200, 200, 200, 200]} rotation={[-Math.PI / 2, 0, 0]}>
         <meshStandardMaterial
           ref={materialRef}
           map={waveTexture}
@@ -38,7 +38,7 @@ const Ocean = () => {
       </Plane>
 
       {/* Plano del fondo */}
-      <Plane args={[100, 100]} rotation={[-Math.PI / 2, 0, 0]} position={[0, -3, 0]}>
+      <Plane args={[200, 200]} rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}>
         <meshStandardMaterial color={new THREE.Color(0x2b1a49)} side={THREE.DoubleSide} />
       </Plane>
     </>
