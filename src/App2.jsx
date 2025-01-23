@@ -30,7 +30,6 @@ function Skybox() {
 const OceanTile = ({ position }) => {
   const materialRef = useRef();
 
-  // Animación para las olas
   useEffect(() => {
     const animate = () => {
       if (materialRef.current) {
@@ -42,15 +41,17 @@ const OceanTile = ({ position }) => {
   }, []);
 
   return (
-    <Plane args={[10, 10, 64, 64]} position={position} rotation={[-Math.PI / 2, 0, 0]}>
+    <Plane args={[40, 40, 64, 64]} position={position} rotation={[-Math.PI / 2, 0, 0]}>
       <shaderMaterial
         ref={materialRef}
         attach="material"
         vertexShader={vertexShader}
         fragmentShader={fragmentShader}
+        transparent={true} // Habilita la transparencia
         uniforms={{
           uTime: { value: 0 },
-          uColor: { value: new THREE.Color(0x0077be) },
+          uColor: { value: new THREE.Color(0x31004E) },
+          uOpacity: { value: 0.6 }, // Controla la opacidad
         }}
       />
     </Plane>
