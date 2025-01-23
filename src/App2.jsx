@@ -6,12 +6,12 @@ import * as THREE from "three";
 function Skybox() {
   // Cargar las texturas para cada cara del cubo
   const textures = useTexture({
-    px: './textures/px.png', // Right
-    nx: './textures/nx.png', // Left
-    py: './textures/py.png', // Top
-    ny: './textures/ny.png', // Bottom
-    pz: './textures/pz.png', // Front
-    nz: './textures/nz.png', // Back
+    px: './models/py.png',
+    nx: './models/ny.png',
+    py: './textures/nx.png',
+    ny: './textures/px.png',
+    pz: './textures/pz.png',
+    nz: './textures/nz.png',
   });
 
   return (
