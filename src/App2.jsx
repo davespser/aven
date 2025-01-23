@@ -31,6 +31,8 @@ function Skybox() {
 const OceanTile = ({ position }) => {
   const materialRef = useRef();
 
+  const waveTexture = useTexture('./textures/olas.png'); // Cargamos la textura de las olas
+
   useEffect(() => {
     const animate = () => {
       if (materialRef.current) {
@@ -46,13 +48,14 @@ const OceanTile = ({ position }) => {
       <shaderMaterial
         ref={materialRef}
         attach="material"
-        vertexShader={oceanVertexShader} // Cambié el nombre del shader de vértices
+        vertexShader={oceanVertexShader} // Shader de vértices
         fragmentShader={toonFragmentShader} // Shader de toon shading
         transparent={true} // Habilita la transparencia
         uniforms={{
           uTime: { value: 0 },
           uColor: { value: new THREE.Color(0x31004E) }, // Color base del océano
           uOpacity: { value: 0.4 }, // Control de opacidad
+          uWaveTexture: { value: waveTexture }, // Pasamos la textura de las olas al shader
         }}
       />
     </Plane>
@@ -78,11 +81,12 @@ const oceanVertexShader = `
   }
 `;
 
-// Fragment Shader: Toon Shading
+// Fragment Shader: Toon Shading y textura de olas
 const toonFragmentShader = `
   varying vec2 vUv;
   uniform vec3 uColor;
   uniform float uOpacity;
+  uniform sampler2D uWaveTexture; // Uniform para la textura de las olas
 
   // Función para aplicar toon shading
   float toonShading(float value) {
@@ -94,8 +98,11 @@ const toonFragmentShader = `
     float light = dot(vec3(0.0, 0.0, 1.0), normalize(vec3(0.5, 0.5, 1.0))); 
     float shadedLight = toonShading(light);
 
-    // Aplicamos el toon shading y la transparencia
-    vec3 color = uColor * shadedLight;
+    // Aplicamos la textura de olas (usando las coordenadas UV)
+    vec4 waveColor = texture2D(uWaveTexture, vUv * 5.0); // Aumentamos la escala de la textura para que se repita
+
+    // Aplicamos el toon shading y la textura
+    vec3 color = uColor * shadedLight + waveColor.rgb * 0.5;
     gl_FragColor = vec4(color, uOpacity); // Control de transparencia
   }
 `;

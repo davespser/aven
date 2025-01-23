@@ -3903,10 +3903,15 @@ No matching component was found for:
 
   void main() {
     vUv = uv;
-    vec3 newPosition = position;
-    newPosition.z += sin(position.x * 2.0 + uTime) * 0.5; // Movimiento de olas
-    newPosition.z += cos(position.y * 2.0 + uTime) * 0.5;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+    
+    // Movimiento de las olas (combinando coseno y seno en función de uTime y las coordenadas de UV)
+    vec3 modifiedPosition = position;
+    
+    // Se crea el movimiento en Z, usando las coordenadas (x, y) y el tiempo (uTime)
+    modifiedPosition.z += 0.05 * (cos(0.5 + uTime + 100.0 * vUv.x) + sin(0.5 * uTime + 100.0 * vUv.y));
+    
+    // Aplicar la nueva posición
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(modifiedPosition, 1.0);
   }
 `,yI=`
   varying vec2 vUv;
@@ -3927,4 +3932,4 @@ No matching component was found for:
     vec3 color = uColor * shadedLight;
     gl_FragColor = vec4(color, uOpacity); // Control de transparencia
   }
-`,_I=()=>{const t=[];for(let n=-Math.floor(3/2);n<=Math.floor(3/2);n++)for(let i=-Math.floor(3/2);i<=Math.floor(3/2);i++)t.push([n*10,0,i*10]);return gn.jsx(gn.Fragment,{children:t.map((n,i)=>gn.jsx(gI,{position:n},i))})},xI=()=>gn.jsxs(dI,{shadows:!0,style:{width:"100vw",height:"100vh",position:"absolute",top:0,left:0},onCreated:({gl:s})=>{s.setSize(window.innerWidth,window.innerHeight),s.setPixelRatio(Math.min(window.devicePixelRatio,2));const e=()=>{s.setSize(window.innerWidth,window.innerHeight),s.setPixelRatio(Math.min(window.devicePixelRatio,2))};return window.addEventListener("resize",e),()=>window.removeEventListener("resize",e)},camera:{position:[0,20,30],fov:300},children:[gn.jsx(mI,{}),gn.jsx("ambientLight",{intensity:.5}),gn.jsx("directionalLight",{position:[10,10,5],intensity:1}),gn.jsx(_I,{})]});$1.createRoot(document.getElementById("root")).render(gn.jsx(mt.StrictMode,{children:gn.jsx(xI,{})}));
+`,_I=()=>{const t=[];for(let n=-Math.floor(3/2);n<=Math.floor(3/2);n++)for(let i=-Math.floor(3/2);i<=Math.floor(3/2);i++)t.push([n*10,0,i*10]);return gn.jsx(gn.Fragment,{children:t.map((n,i)=>gn.jsx(gI,{position:n},i))})},xI=()=>gn.jsxs(dI,{shadows:!0,style:{width:"100vw",height:"100vh",position:"absolute",top:0,left:0},onCreated:({gl:s})=>{s.setSize(window.innerWidth,window.innerHeight),s.setPixelRatio(Math.min(window.devicePixelRatio,2));const e=()=>{s.setSize(window.innerWidth,window.innerHeight),s.setPixelRatio(Math.min(window.devicePixelRatio,2))};return window.addEventListener("resize",e),()=>window.removeEventListener("resize",e)},camera:{position:[0,20,30],fov:75},children:[gn.jsx(mI,{}),gn.jsx("ambientLight",{intensity:.5}),gn.jsx("directionalLight",{position:[10,10,5],intensity:1}),gn.jsx(_I,{})]});$1.createRoot(document.getElementById("root")).render(gn.jsx(mt.StrictMode,{children:gn.jsx(xI,{})}));
