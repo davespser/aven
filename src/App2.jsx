@@ -16,17 +16,16 @@ function Skybox() {
 
   return (
     <mesh scale={[-1, 1, 1]} position={[0, 0, 0]}>
-      <boxGeometry args={[2000, 2000, 2000]} />
-      <meshBasicMaterial attach="material-0" map={textures.px} side={THREE.BackSide} />
-      <meshBasicMaterial attach="material-1" map={textures.nx} side={THREE.BackSide} />
-      <meshBasicMaterial attach="material-2" map={textures.py} side={THREE.BackSide} />
-      <meshBasicMaterial attach="material-3" map={textures.ny} side={THREE.BackSide} />
-      <meshBasicMaterial attach="material-4" map={textures.pz} side={THREE.BackSide} />
-      <meshBasicMaterial attach="material-5" map={textures.nz} side={THREE.BackSide} />
+      <boxGeometry args={[2000, 2000, 2000]} /> {/* Tamaño del cubo */}
+      <meshBasicMaterial attachArray="material" map={textures.px} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.nx} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.py} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.ny} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.pz} side={THREE.BackSide} />
+      <meshBasicMaterial attachArray="material" map={textures.nz} side={THREE.BackSide} />
     </mesh>
   );
 }
-
 const OceanTile = ({ position }) => {
   const materialRef = useRef();
 
@@ -106,7 +105,7 @@ const OceanGrid = () => {
 
 const App = () => {
   return (
-    <Canvas camera={{ position: [0, 10, 20], fov: 45 }}>
+    <Canvas camera={{ position: [0, 30, 30], fov: 45 }}>
               {/* Skybox con cubo */}
         <Skybox />
       <ambientLight intensity={0.5} />
