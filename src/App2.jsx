@@ -1,6 +1,6 @@
 import React, { useRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, useTexture } from "@react-three/drei";
+import { OrbitControls, useTexture, Plane } from "@react-three/drei";
 import * as THREE from "three";
 
 const Ocean = () => {
