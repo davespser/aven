@@ -35,7 +35,7 @@ const OceanTile = ({ position }) => {
   useEffect(() => {
     const animate = () => {
       if (materialRef.current) {
-        materialRef.current.uniforms.uTime.value += 0.02;
+        materialRef.current.uniforms.uTime.value += 0.02; // Actualizamos uTime
       }
       requestAnimationFrame(animate);
     };
@@ -51,7 +51,7 @@ const OceanTile = ({ position }) => {
         fragmentShader={toonFragmentShader} // Shader de toon shading
         transparent={true} // Habilita la transparencia
         uniforms={{
-          uTime: { value: 0 },
+          uTime: { value: 0 }, // Inicializamos uTime
           uColor: { value: new THREE.Color(0x31004E) }, // Color base del océano
           uOpacity: { value: 0.4 }, // Control de opacidad
           uWaveTexture: { value: waveTexture }, // Pasamos la textura de las olas al shader
@@ -61,7 +61,7 @@ const OceanTile = ({ position }) => {
   );
 };
 
-// Vertex Shader: Movimiento de las olas
+// Vertex Shader: Controla la animación de las olas
 const oceanVertexShader = `
   varying vec2 vUv;
   uniform float uTime;
@@ -70,32 +70,38 @@ const oceanVertexShader = `
     vUv = uv;
     
     // Movimiento de las olas (combinando coseno y seno en función de uTime y las coordenadas de UV)
-    vec3 modifiedPosition = position;
+    vec3 newPosition = position;
     
     // Se crea el movimiento en Z, usando las coordenadas (x, y) y el tiempo (uTime)
-    modifiedPosition.z += 0.05 * (cos(0.5 + uTime + 100.0 * vUv.x) + sin(0.5 * uTime + 100.0 * vUv.y));
+    newPosition.z += 0.05 * (cos(0.5 + uTime + 100.0 * vUv.x) + sin(0.5 * uTime + 100.0 * vUv.y));
     
     // Aplicar la nueva posición
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(modifiedPosition, 1.0);
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
   }
 `;
 
-// Fragment Shader: Toon Shading y textura de olas
+// Fragment Shader: Toon Shading con textura de olas
 const toonFragmentShader = `
-  varying vec2 vUv;
+  uniform float uTime;
   uniform vec3 uColor;
   uniform float uOpacity;
   uniform sampler2D uWaveTexture; // Uniform para la textura de las olas
+  varying vec2 vUv;
+
+  // Función para aplicar toon shading
+  float toonShading(float value) {
+    return smoothstep(0.2, 0.8, value); // Define cómo se divide la luz en tonos
+  }
 
   void main() {
-    // Obtenemos la luz direccional (simulada para este ejemplo)
-    float light = dot(vec3(0.0, 0.0, 1.0), normalize(vec3(0.5, 0.5, 1.0))); 
-    float shadedLight = smoothstep(0.2, 0.8, light); // Toon shading: divide la luz en tonos
-
     // Usamos la textura de las olas, haciendo que se mueva con el tiempo
     vec4 waveColor = texture2D(uWaveTexture, vUv * 5.0 + vec2(0.0, uTime * 0.1)); // Movimiento de la textura de olas
 
-    // Mezclamos la textura con el color base dependiendo de la fuerza de la ola
+    // Definimos la luz direccional (simulada para este ejemplo)
+    float light = dot(vec3(0.0, 0.0, 1.0), normalize(vec3(0.5, 0.5, 1.0))); 
+    float shadedLight = toonShading(light); // Toon shading: divide la luz en tonos
+
+    // Mezclamos la textura de las olas con el color de la luz
     vec3 color = mix(uColor * shadedLight, waveColor.rgb, 0.8); // 0.8 ajusta la influencia de la textura
     
     gl_FragColor = vec4(color, uOpacity); // Control de opacidad
