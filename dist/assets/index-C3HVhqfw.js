@@ -3907,11 +3907,12 @@ No matching component was found for:
 
     // Movimiento en Z para simular olas
     vec3 newPosition = position;
-    newPosition.z += 0.5 * sin(10.0 * (position.x + uTime)) * 0.2;
-    newPosition.z += 0.5 * sin(10.0 * (position.y + uTime)) * 0.2;
+    float wave1 = sin(10.0 * (position.x + uTime)) * 0.2;
+    float wave2 = sin(10.0 * (position.y + uTime)) * 0.2;
+    newPosition.z += wave1 + wave2;
 
     // Calcular la fuerza de las olas para usarla en el fragment shader
-    vWaveStrength = abs(sin(10.0 * (position.x + uTime)) + sin(10.0 * (position.y + uTime)));
+    vWaveStrength = abs(wave1 + wave2);
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
   }
@@ -3929,9 +3930,9 @@ No matching component was found for:
     // Toon shading dividiendo la luz en tonos
     float shadedLight = smoothstep(0.2, 0.8, light);
 
-    // Aplicar la textura de las crestas de las olas
+    // Aplicar la textura únicamente en las crestas de las olas
     vec4 waveTexture = texture2D(uWaveTexture, vUv * 5.0); // Escalar la textura para que se repita
-    vec3 waveColor = mix(uColor, waveTexture.rgb, vWaveStrength); // Mezclar la textura con el color base
+    vec3 waveColor = mix(uColor, waveTexture.rgb, clamp(vWaveStrength, 0.0, 1.0)); // Mezclar textura solo en las crestas
 
     // Resultado final con transparencia
     gl_FragColor = vec4(waveColor * shadedLight, uOpacity);

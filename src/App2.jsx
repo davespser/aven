@@ -3,16 +3,19 @@ import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 
-// Océano con textura aplicada en las crestas de las olas
 const Ocean = () => {
   const materialRef = useRef();
-  const waveTexture = useTexture("./textures/olas.png"); // Cargar la textura de las olas
+  const waveTexture = useTexture("./textures/olas.png"); // Cargamos la textura de las olas
+
+  // Configuración para repetir la textura
+  waveTexture.wrapS = THREE.RepeatWrapping;
+  waveTexture.wrapT = THREE.RepeatWrapping;
+  waveTexture.repeat.set(10, 10); // Repetir la textura 10x10 en toda la superficie
 
   useEffect(() => {
-    // Animación del océano (incrementa el tiempo)
     const animate = () => {
       if (materialRef.current) {
-        materialRef.current.uniforms.uTime.value += 0.02;
+        materialRef.current.uniforms.uTime.value += 0.02; // Incrementar el tiempo para animación
       }
       requestAnimationFrame(animate);
     };
@@ -20,22 +23,20 @@ const Ocean = () => {
   }, []);
 
   return (
-    <mesh rotation={[-Math.PI / 2, 0, 0]}>
-      {/* Plano subdividido 100x100 para el movimiento */}
-      <planeGeometry args={[100, 100, 100, 100]} />
+    <Plane args={[100, 100, 100, 100]} rotation={[-Math.PI / 2, 0, 0]}>
       <shaderMaterial
         ref={materialRef}
         vertexShader={vertexShader}
         fragmentShader={fragmentShader}
-        transparent={true}
         uniforms={{
           uTime: { value: 0 },
-          uColor: { value: new THREE.Color(0x0066cc) }, // Azul para el agua
-          uOpacity: { value: 0.8 }, // Transparencia del agua
-          uWaveTexture: { value: waveTexture }, // Textura para las crestas de las olas
+          uWaveTexture: { value: waveTexture }, // Textura de las olas
+          uColor: { value: new THREE.Color(0x0066cc) }, // Color azul para el agua
+          uOpacity: { value: 0.8 }, // Transparencia
         }}
+        transparent={true}
       />
-    </mesh>
+    </Plane>
   );
 };
 
@@ -54,33 +55,30 @@ const vertexShader = `
     float wave2 = sin(10.0 * (position.y + uTime)) * 0.2;
     newPosition.z += wave1 + wave2;
 
-    // Calcular la fuerza de las olas para usarla en el fragment shader
+    // Fuerza de las olas para usar en el fragment shader
     vWaveStrength = abs(wave1 + wave2);
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
   }
 `;
 
-// Fragment Shader: Toon Shading y textura en las crestas
+// Fragment Shader: Aplicar textura en las crestas
 const fragmentShader = `
   varying vec2 vUv;
   varying float vWaveStrength;
+  uniform sampler2D uWaveTexture;
   uniform vec3 uColor;
   uniform float uOpacity;
-  uniform sampler2D uWaveTexture;
 
   void main() {
-    // Simulación de luz direccional
-    float light = dot(vec3(0.0, 0.0, 1.0), normalize(vec3(0.5, 0.5, 1.0)));
-
-    // Toon shading dividiendo la luz en tonos
+    // Base azul con sombreado de toon
+    float light = dot(vec3(0.0, 0.0, 1.0), normalize(vec3(0.5, 0.5, 1.0))); 
     float shadedLight = smoothstep(0.2, 0.8, light);
 
-    // Aplicar la textura únicamente en las crestas de las olas
-    vec4 waveTexture = texture2D(uWaveTexture, vUv * 5.0); // Escalar la textura para que se repita
-    vec3 waveColor = mix(uColor, waveTexture.rgb, clamp(vWaveStrength, 0.0, 1.0)); // Mezclar textura solo en las crestas
+    // Textura de olas en las crestas
+    vec4 waveTexture = texture2D(uWaveTexture, vUv);
+    vec3 waveColor = mix(uColor, waveTexture.rgb, clamp(vWaveStrength, 0.0, 1.0));
 
-    // Resultado final con transparencia
     gl_FragColor = vec4(waveColor * shadedLight, uOpacity);
   }
 `;
@@ -95,12 +93,12 @@ const App = () => {
         top: 0,
         left: 0,
       }}
-      camera={{ position: [50, 50, 50], fov: 75 }}
+      camera={{ position: [50, 50, 50], fov: 75 }} // Posición inicial de la cámara
     >
       <ambientLight intensity={0.5} />
       <directionalLight position={[10, 10, 5]} intensity={1} />
       <Ocean />
-      <OrbitControls />
+      <OrbitControls /> {/* Cámara orbital */}
     </Canvas>
   );
 };
