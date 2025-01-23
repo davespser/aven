@@ -38,8 +38,8 @@ const Ocean = () => {
       </Plane>
 
       {/* Plano del fondo */}
-      <Plane args={[100, 100]} rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}>
-        <meshStandardMaterial color={new THREE.Color(0x009fff)} side={THREE.DoubleSide} />
+      <Plane args={[100, 100]} rotation={[-Math.PI / 2, 0, 0]} position={[0, -3, 0]}>
+        <meshStandardMaterial color={new THREE.Color(0x824fdb)} side={THREE.DoubleSide} />
       </Plane>
     </>
   );
@@ -72,6 +72,7 @@ const Skybox = () => {
 const App = () => {
   return (
     <Canvas
+    shadows
       style={{
         width: '100vw',
         height: '100vh',
@@ -79,7 +80,7 @@ const App = () => {
         top: 0,
         left: 0,
       }}
-      camera={{ position: [50, 50, 50], fov: 75 }}
+      camera={{ position: [50, 50, 50], fov: 250 }}
     >
       <ambientLight intensity={4.5} />
       <directionalLight position={[10, 10, 5]} intensity={1.5} />
