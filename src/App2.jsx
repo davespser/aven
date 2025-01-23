@@ -17,8 +17,8 @@ const Ocean = () => {
     const animate = () => {
       if (materialRef.current) {
         // Desplazamiento de la textura en el tiempo
-        waveTexture.offset.y += 0.01; // Movimiento vertical
-        waveTexture.offset.x += 0.005; // Movimiento horizontal
+        waveTexture.offset.y += 0.005; // Movimiento vertical
+        waveTexture.offset.x += 0.0025; // Movimiento horizontal
       }
       requestAnimationFrame(animate);
     };
@@ -32,7 +32,7 @@ const Ocean = () => {
         <meshStandardMaterial
           ref={materialRef}
           map={waveTexture} // Asignamos la textura de las olas
-          color={new THREE.Color(0x4A90E2)} // Azul para el agua
+          color={new THREE.Color(0xFFFFFF)} // Azul para el agua
           transparent={true}
           opacity={0.7} // Transparencia más apreciable
           side={THREE.DoubleSide}
