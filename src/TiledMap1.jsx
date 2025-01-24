@@ -7,7 +7,7 @@ import { BoxGeometry, EdgesGeometry } from 'three';
 import { a, useSpring } from '@react-spring/three';
 import Character from './character'; // Componente del personaje
 
-function Tile({ position, material, lineMaterial, isSelected, isInPath, onPointerEnter, onClick }) {
+function Tile({ position, material, lineMaterial, isSelected, isInRange, onClick }) {
   const edges = useMemo(() => {
     const geometry = new BoxGeometry(1, 0.2, 1);
     const edgesGeometry = new EdgesGeometry(geometry);
@@ -21,38 +21,36 @@ function Tile({ position, material, lineMaterial, isSelected, isInPath, onPointe
   });
 
   return (
-    <a.group
-      position={position}
-      scale={scale}
-      onClick={onClick}
-      onPointerEnter={onPointerEnter} // Detecta cuando el mouse pasa sobre el tile
-    >
+    <a.group position={position} scale={scale} onClick={onClick}>
       <mesh castShadow receiveShadow>
         <boxGeometry args={[1, 0.2, 1]} />
         <meshPhysicalMaterial
           {...material}
-          color={isSelected ? 'blue' : isInPath ? 'yellow' : material.color}
+          color={isSelected ? 'blue' : isInRange ? 'green' : material.color}
         />
       </mesh>
       <primitive object={edges} />
+      {isSelected && (
+        <spotLight position={[0, 5, 0]} angle={0.5} intensity={2} penumbra={0.5} castShadow />
+      )}
     </a.group>
   );
 }
 
 export default function TiledMap1({ selectedCharacter }) {
-  const [selectedTile, setSelectedTile] = useState(null);
-  const [accessibleTiles, setAccessibleTiles] = useState([]); // Tiles disponibles para movimiento
-  const [pathTiles, setPathTiles] = useState([]); // Tiles del camino seleccionado
-  const [isDragging, setIsDragging] = useState(false); // Estado de arrastre
-  const mapSize = 10;
-  const movementRange = 3;
+  const [selectedTile, setSelectedTile] = useState(null); // Tile actualmente seleccionado
+  const [accessibleTiles, setAccessibleTiles] = useState([]); // Tiles dentro del rango permitido
+  const mapSize = 10; // Tamaño del mapa en tiles
+  const movementRange = 3; // Rango de movimiento permitido
 
+  // Posición y animación del personaje
   const [characterPosition, setCharacterPosition] = useState([0, 0.5, 0]);
   const [springProps, api] = useSpring(() => ({
     position: characterPosition,
     config: { tension: 200, friction: 25 },
   }));
 
+  // Calcular los tiles accesibles según el rango de movimiento del personaje
   const calculateAccessibleTiles = (currentPosition) => {
     const [currentX, currentZ] = currentPosition;
     const rangeTiles = [];
@@ -68,61 +66,26 @@ export default function TiledMap1({ selectedCharacter }) {
     return rangeTiles;
   };
 
+  // Seleccionar tiles accesibles al hacer clic en el personaje
   const handleCharacterClick = () => {
     const [currentX, , currentZ] = characterPosition.map((coord) => Math.round(coord + mapSize / 2));
     const accessible = calculateAccessibleTiles([currentX, currentZ]);
     setAccessibleTiles(accessible);
   };
 
+  // Mover el personaje al hacer clic en un tile
   const handleTileClick = (tile) => {
-    if (!accessibleTiles.includes(tile.id)) return;
+    if (!accessibleTiles.includes(tile.id)) return; // Solo permite moverse a tiles dentro del rango
 
     const [x, z] = tile.id.split('-').map(Number);
     setSelectedTile(tile.id);
     const newPosition = [x - mapSize / 2, 0.5, z - mapSize / 2];
     setCharacterPosition(newPosition);
-    api.start({ position: newPosition });
-    setAccessibleTiles([]);
+    api.start({ position: newPosition }); // Inicia la animación hacia la nueva posición
+    setAccessibleTiles([]); // Limpia los tiles accesibles después del movimiento
   };
 
-  const handlePointerDown = () => {
-    setIsDragging(true);
-    setPathTiles([]); // Limpia el camino al iniciar
-  };
-
-  const handlePointerUp = () => {
-    setIsDragging(false);
-    moveCharacterThroughPath(); // Mueve el personaje por el camino seleccionado
-    setPathTiles([]); // Limpia los tiles seleccionados al terminar el movimiento
-  };
-
-  const handlePointerEnter = (tile) => {
-    if (isDragging && accessibleTiles.includes(tile.id) && !pathTiles.includes(tile.id)) {
-      setPathTiles((prev) => [...prev, tile.id]); // Agrega el tile al camino si está dentro del rango
-    }
-  };
-
-  const moveCharacterThroughPath = () => {
-    if (pathTiles.length === 0) return;
-
-    // Convierte los IDs a posiciones reales y anima al personaje
-    const pathPositions = pathTiles.map((id) => {
-      const [x, z] = id.split('-').map(Number);
-      return [x - mapSize / 2, 0.5, z - mapSize / 2];
-    });
-
-    let delay = 0;
-    pathPositions.forEach((position, index) => {
-      setTimeout(() => {
-        api.start({ position });
-        if (index === pathPositions.length - 1) {
-          setCharacterPosition(position); // Actualiza la posición final del personaje
-        }
-      }, delay);
-      delay += 500; // Agrega un retraso para que el personaje se mueva por cada tile
-    });
-  };
-
+  // Material para los tiles (iceMaterial con shaders)
   const iceMaterial = useMemo(() => {
     const material = new THREE.MeshPhysicalMaterial({
       color: '#d4f1f9',
@@ -212,6 +175,7 @@ export default function TiledMap1({ selectedCharacter }) {
     return material;
   }, []);
 
+  // Material para las líneas de los tiles
   const lineMaterial = useMemo(() => {
     const material = new LineMaterial({
       color: 'black',
@@ -221,6 +185,7 @@ export default function TiledMap1({ selectedCharacter }) {
     return material;
   }, []);
 
+  // Generar los tiles del mapa
   const tiles = useMemo(() => {
     const tileArray = [];
     for (let x = 0; x < mapSize; x++) {
@@ -237,22 +202,18 @@ export default function TiledMap1({ selectedCharacter }) {
   }, [iceMaterial, lineMaterial]);
 
   return (
-    <group
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-    >
+    <group>
       {tiles.map((tile) => (
         <Tile
           key={tile.id}
           {...tile}
           isSelected={selectedTile === tile.id}
-          isInPath={pathTiles.includes(tile.id)}
-          onPointerEnter={() => handlePointerEnter(tile)}
+          isInRange={accessibleTiles.includes(tile.id)}
           onClick={() => handleTileClick(tile)}
         />
       ))}
 
-      {/* Renderiza el personaje */}
+      {/* Renderizar el personaje */}
       <a.group position={springProps.position} onClick={handleCharacterClick}>
         <Character characterType={selectedCharacter} />
       </a.group>
