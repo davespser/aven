@@ -6,7 +6,7 @@ import * as THREE from "three";
 // Componente para una sola tile
 const Tile = ({ position, material }) => (
   <mesh position={position} receiveShadow>
-    <boxGeometry args={[10, 0.1, 10]} /> {/* Tamaño de cada tile */}
+    <boxGeometry args={[20, 0.1, 20]} /> {/* Tamaño de cada tile */}
     <meshStandardMaterial {...material} />
   </mesh>
 );
@@ -14,7 +14,7 @@ const Tile = ({ position, material }) => (
 // Fondo marino tileado
 const TiledOceanFloor = () => {
   const texture = useTexture("./textures/fondo2.jpg"); // Textura del fondo marino
-  const mapSize = 40; // Número de tiles por fila/columna
+  const mapSize = 20; // Número de tiles por fila/columna
 
   // Configuración de la textura
   useMemo(() => {
