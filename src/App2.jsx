@@ -6,7 +6,7 @@ import * as THREE from "three";
 // Componente para una sola tile
 const Tile = ({ position, material }) => (
   <mesh position={position} receiveShadow>
-    <boxGeometry args={[200, 0.1, 200]} /> {/* Tamaño ajustable */}
+    <boxGeometry args={[100, 0.1, 100]} /> {/* Tamaño ajustable */}
     <meshStandardMaterial {...material} />
   </mesh>
 );
@@ -29,8 +29,8 @@ const TiledOceanFloor = () => {
     () => ({
       map: texture,
       emissive: new THREE.Color(0x2b1a49),
-      emissiveIntensity: 0.3,
-      roughness: 0.2,
+      emissiveIntensity: 1,
+      roughness: 0.8,
       metalness: 0.1,
       side: THREE.DoubleSide,
     }),
@@ -90,7 +90,7 @@ const Ocean = () => {
         map={waveTexture}
         color={new THREE.Color(0xffffff)}
         transparent={true}
-        opacity={0.1}
+        opacity={0.7}
         side={THREE.DoubleSide}
       />
     </mesh>
@@ -127,7 +127,7 @@ const App = () => {
       camera={{ position: [50, 50, 50], fov: 100 }}
     >
       <ambientLight intensity={1.5} />
-      <directionalLight position={[10, 10, 5]} intensity={1.5} castShadow />
+      <directionalLight position={[10, 20, 5]} intensity={1.5} castShadow />
       <Skybox /> {/* Cielo cúbico */}
       <Ocean /> {/* Océano animado */}
       <TiledOceanFloor /> {/* Fondo marino estático */}
