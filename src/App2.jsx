@@ -11,7 +11,7 @@ const Tile = ({ position, material }) => (
 );
 
 const TiledOceanFloor = () => {
-  const texture = useTexture("./textures/fondo.jpg"); // Textura para los tiles
+  const texture = useTexture("./textures/fondo2.jpg"); // Textura para los tiles
   const mapSize = 250; // Tamaño de la cuadrícula (40x40 tiles)
 
   // Configuración de la textura
