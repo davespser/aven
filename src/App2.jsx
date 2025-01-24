@@ -5,8 +5,13 @@ import * as THREE from "three";
 
 const Tile = ({ position, material }) => (
   <mesh position={position} receiveShadow>
-    <boxGeometry args={[5000, 2, 500]} />
-    <meshStandardMaterial {...material} />
+    <boxGeometry args={[500, 2, 500]} />
+    <meshStandardMaterial
+  map={texture} // Textura del material
+  emissive={new THREE.Color(0xaaaaaa)} // Color de la emisión
+  emissiveIntensity={1} // Intensidad de la emisión
+  side={THREE.DoubleSide}
+/>
   </mesh>
 );
 
