@@ -65,7 +65,7 @@ const TiledOceanFloor = () => {
 const Hexagon = () => {
   const material = useMemo(
     () => ({
-      color: new THREE.Color(0x0000ff), // Azul
+      color: new THREE.Color(0x4c2e81), // Azul
       roughness: 0.5,
       metalness: 0.3,
     }),
@@ -73,7 +73,7 @@ const Hexagon = () => {
   );
 
   return (
-    <mesh position={[20, -0.5, 20]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+    <mesh position={[15, -0.5, 15]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
       <circleGeometry args={[5, 6]} /> {/* Radio de 5, 6 lados para un hexágono */}
       <meshStandardMaterial {...material} />
     </mesh>
