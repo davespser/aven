@@ -6,26 +6,34 @@ import * as THREE from "three";
 // Componente para una sola tile
 const Tile = ({ position, material }) => (
   <mesh position={position} receiveShadow>
-    <boxGeometry args={[20, 0.1, 20]} /> {/* Ajustar tamaño de cada tile */}
+    <boxGeometry args={[10, 0.1, 10]} /> {/* Tamaño de cada tile */}
     <meshStandardMaterial {...material} />
   </mesh>
 );
 
 // Fondo marino tileado
 const TiledOceanFloor = () => {
-  const mapSize = 20; // Número de tiles por fila/columna (ajustado para cubrir 200x200)
+  const texture = useTexture("./textures/fondo2.jpg"); // Textura del fondo marino
+  const mapSize = 40; // Número de tiles por fila/columna
 
-  // Material de las tiles (sin textura, solo color)
+  // Configuración de la textura
+  useMemo(() => {
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(mapSize / 2, mapSize / 2); // Ajustar repetición para abarcar toda el área
+  }, [texture, mapSize]);
+
+  // Material que usa la textura configurada
   const material = useMemo(
     () => ({
-      color: new THREE.Color(0x2b1a49),
-      roughness: 0.2,
-      metalness: 0.1,
-      emissive: new THREE.Color(0x2b1a49),
-      emissiveIntensity: 1,
+      map: texture,
+      roughness: 0.5,
+      metalness: 0.2,
+      emissive: new THREE.Color(0x2b1a49), // Emisión con un tono similar al color base
+      emissiveIntensity: 0.2,
       side: THREE.DoubleSide,
     }),
-    []
+    [texture]
   );
 
   // Generar posiciones para las tiles
@@ -35,9 +43,9 @@ const TiledOceanFloor = () => {
     for (let x = 0; x < mapSize; x++) {
       for (let z = 0; z < mapSize; z++) {
         tileArray.push([
-          x * tileSize - (mapSize * tileSize) / 2, // Centrar las tiles en el eje X
+          x * tileSize - (mapSize * tileSize) / 2, // Centrar las tiles en X
           -1, // Altura (bajo el océano)
-          z * tileSize - (mapSize * tileSize) / 2, // Centrar las tiles en el eje Z
+          z * tileSize - (mapSize * tileSize) / 2, // Centrar las tiles en Z
         ]);
       }
     }
