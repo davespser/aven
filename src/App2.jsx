@@ -12,7 +12,7 @@ const Tile = ({ position, material }) => (
 
 const TiledOceanFloor = () => {
   const texture = useTexture("./textures/fondo2.jpg");
-  const mapSize = 20; // Tamaño del plano tileado
+  const mapSize = 10; // Tamaño del plano tileado
 
   // Configuración de textura
   useEffect(() => {
@@ -106,8 +106,8 @@ const Ocean = () => {
         ref={materialRef}
         map={waveTexture}
         color={new THREE.Color(0xffffff)}
-        transparent={true}
-        opacity={0.7}
+        transparent={false}
+        opacity={1}
         side={THREE.DoubleSide}
       />
     </mesh>
