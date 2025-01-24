@@ -61,6 +61,25 @@ const TiledOceanFloor = () => {
   );
 };
 
+// Hexágono azul en la coordenada [20, 20]
+const Hexagon = () => {
+  const material = useMemo(
+    () => ({
+      color: new THREE.Color(0x0000ff), // Azul
+      roughness: 0.5,
+      metalness: 0.3,
+    }),
+    []
+  );
+
+  return (
+    <mesh position={[20, -0.5, 20]} rotation={[-Math.PI / 2, 0, 0]} receiveShadow>
+      <circleGeometry args={[5, 6]} /> {/* Radio de 5, 6 lados para un hexágono */}
+      <meshStandardMaterial {...material} />
+    </mesh>
+  );
+};
+
 // Cielo cúbico
 const Skybox = () => {
   const textures = useTexture({
@@ -121,6 +140,9 @@ const Ocean = () => {
 
       {/* Fondo marino tileado */}
       <TiledOceanFloor />
+
+      {/* Hexágono azul */}
+      <Hexagon />
     </>
   );
 };
