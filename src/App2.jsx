@@ -4,20 +4,23 @@ import { OrbitControls, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 
 const Tile = ({ position, material }) => (
-  <mesh position={position} receiveShadow>
+  <mesh position={position, texture} receiveShadow>
     <boxGeometry args={[500, 2, 500]} />
     <meshStandardMaterial
-  map={texture} // Textura del material
-  emissive={new THREE.Color(0xaaaaaa)} // Color de la emisión
-  emissiveIntensity={1} // Intensidad de la emisión
-  side={THREE.DoubleSide}
-/>
+      map={texture} // Textura aplicada
+      emissive={new THREE.Color(0xaaaaaa)} // Emisión para mejorar visibilidad
+      emissiveIntensity={0.5} // Intensidad de emisión
+      roughness={0.2} // Control de rugosidad
+      metalness={0.1} // Control de metalicidad
+      side={THREE.DoubleSide}
+    />
   </mesh>
 );
 
 const TiledOceanFloor = () => {
   const texture = useTexture("./textures/fondo2.jpg"); // Textura para los tiles
   const mapSize = 22; // Tamaño de la cuadrícula (40x40 tiles)
+  THREE.sRGBEncoding; // Ajuste de gamma
 
   // Configuración de la textura
   texture.wrapS = THREE.RepeatWrapping;
@@ -47,7 +50,10 @@ const TiledOceanFloor = () => {
   return (
     <group>
       {tiles.map((position, index) => (
-        <Tile key={index} position={position} material={material} />
+        <Tile key={index}
+        position={position}
+        texture={texture}
+        material={material} />
       ))}
     </group>
   );
