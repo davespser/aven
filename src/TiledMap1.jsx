@@ -45,22 +45,68 @@ function Tile({ position, material, lineMaterial, isSelected, onClick }) {
 }
 
 export default function TiledMap1({ selectedCharacter }) {
-  const [selectedTile, setSelectedTile] = useState(null); // Estado del tile seleccionado
-  const [characterPosition, setCharacterPosition] = useState([0, 0]); // Posición del personaje en el mapa
+  const [selectedTile, setSelectedTile] = useState(null);
+  const [characterPosition, setCharacterPosition] = useState([0, 0]); // Posición inicial
+  const [accessibleTiles, setAccessibleTiles] = useState([]); // Tiles disponibles
   const mapSize = 10;
 
-  // Animación de posición del personaje
   const [springProps, api] = useSpring(() => ({
-    position: [0, 0.5, 0], // Posición inicial
+    position: [0, 0.5, 0],
     config: { tension: 200, friction: 25 },
   }));
 
   const handleTileClick = (tile) => {
+    if (!accessibleTiles.includes(tile.id)) return; // Restringir clics
     const [x, z] = tile.id.split('-').map(Number);
     setSelectedTile(tile.id);
     const newPosition = [x - mapSize / 2, 0.5, z - mapSize / 2];
-    api.start({ position: newPosition }); // Inicia la animación hacia la nueva posición
+    api.start({ position: newPosition });
+    setCharacterPosition([x, 0, z]); // Actualizar posición
+    updateAccessibleTiles([x, 0, z]); // Actualizar tiles accesibles
   };
+
+  const updateAccessibleTiles = (newPosition) => {
+    setAccessibleTiles(getAccessibleTiles(newPosition, 3));
+  };
+
+  useMemo(() => {
+    updateAccessibleTiles(characterPosition); // Inicializa los tiles accesibles
+  }, [characterPosition]);
+
+  const tiles = useMemo(() => {
+    const tileArray = [];
+    for (let x = 0; x < mapSize; x++) {
+      for (let z = 0; z < mapSize; z++) {
+        tileArray.push({
+          position: [x - mapSize / 2, 0, z - mapSize / 2],
+          material: iceMaterial,
+          lineMaterial,
+          id: `${x}-${z}`,
+        });
+      }
+    }
+    return tileArray;
+  }, [iceMaterial, lineMaterial]);
+
+  return (
+    <group>
+      {tiles.map((tile) => (
+        <Tile
+          key={tile.id}
+          {...tile}
+          isSelected={selectedTile === tile.id}
+          isAccessible={accessibleTiles.includes(tile.id)} // Resaltar si es accesible
+          onClick={() => handleTileClick(tile)}
+        />
+      ))}
+
+      {/* Renderiza el personaje */}
+      <a.group position={springProps.position}>
+        <Character characterType={selectedCharacter} />
+      </a.group>
+    </group>
+  );
+}
 
   const iceMaterial = useMemo(() => {
     const material = new THREE.MeshPhysicalMaterial({
