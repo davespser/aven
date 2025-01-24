@@ -239,4 +239,3 @@ export default function TiledMap1({ selectedCharacter }) {
       </a.group>
     </group>
   );
-}
