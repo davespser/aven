@@ -24,7 +24,7 @@ const TiledOceanFloor = () => {
     () => ({
       map: texture,
       emissive: new THREE.Color(0x2b1a49),
-      emissiveIntensity: 0.3,
+      emissiveIntensity: 0.1,
       roughness: 0.2,
       metalness: 0.1,
       side: THREE.DoubleSide,
@@ -121,8 +121,8 @@ const App = () => {
       style={{ width: "100vw", height: "100vh", position: "absolute", top: 0, left: 0 }}
       camera={{ position: [50, 50, 50], fov: 100 }}
     >
-      <ambientLight intensity={1.5} />
-      <directionalLight position={[10, 10, 5]} intensity={1.5} castShadow />
+      <ambientLight intensity={0.75} />
+      <directionalLight position={[10, 10, 5]} intensity={0.7} castShadow />
       <Skybox /> {/* Cielo cúbico */}
       <Ocean /> {/* Océano y fondo marino */}
       <OrbitControls /> {/* Control orbital */}
