@@ -68,9 +68,9 @@ export default function App() {
         <OrthographicCamera 
           makeDefault 
           position={[20, 20, 20]} 
-          zoom={50} 
+          zoom={100} 
           near={0.1} 
-          far={1000} 
+          far={2000} 
           rotation={[-Math.PI / 4, Math.PI / 4, 0]} // Rotación para vista isométrica
         />
 
