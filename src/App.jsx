@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Canvas } from '@react-three/fiber';
-import { OrbitControls, PerspectiveCamera, useTexture } from '@react-three/drei';
+import { OrbitControls, OrthographicCamera, useTexture } from '@react-three/drei'; // Importar OrthographicCamera
 import * as THREE from 'three'; // Importar THREE
 import TiledMap1 from './TiledMap1';
 import TiledMap2 from './TiledMap2';
@@ -63,7 +63,16 @@ export default function App() {
         {/* Iluminación */}
         <ambientLight intensity={4.5} />
         <directionalLight position={[1, 2, 3]} intensity={1.5} castShadow />
-        <PerspectiveCamera makeDefault position={[0, 20, 30]} fov={75} />
+
+        {/* Cámara Ortográfica */}
+        <OrthographicCamera 
+          makeDefault 
+          position={[20, 20, 20]} 
+          zoom={50} 
+          near={0.1} 
+          far={1000} 
+          rotation={[-Math.PI / 4, Math.PI / 4, 0]} // Rotación para vista isométrica
+        />
 
         {/* Primer mapa (TiledMap1) */}
         <group position={[-5, 0, 0]}>
