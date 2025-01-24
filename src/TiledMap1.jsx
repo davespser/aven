@@ -1,7 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { a, useSpring } from '@react-spring/three';
 import Tile from './Tile';
-import Character from './Character';
+import Character from './character';
 import { calculateAccessibleTiles } from './TileMapUtils';
 import { createIceMaterial, createLineMaterial } from './Materials';
 
