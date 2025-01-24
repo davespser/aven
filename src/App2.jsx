@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
+import { OrbitControls , useTexture} from "@react-three/drei";
 import * as THREE from "three";
 
 // Componente para una sola tile
