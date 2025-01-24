@@ -1,89 +1,50 @@
-import React, { useRef, useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 
-// Generar geometría de un mosaico hexagonal
-const createHexagonalGrid = (radius, numHexagons) => {
-  const hexRadius = radius / Math.sqrt(numHexagons / 2); // Aproximar el radio de cada hexágono
-  const hexWidth = Math.sqrt(3) * hexRadius; // Ancho del hexágono
-  const hexHeight = 2 * hexRadius; // Altura del hexágono
-  const positions = [];
-  const indices = [];
-  let index = 0;
+const Tile = ({ position, material }) => (
+  <mesh position={position} receiveShadow>
+    <boxGeometry args={[1, 0.1, 1]} />
+    <meshStandardMaterial {...material} />
+  </mesh>
+);
 
-  // Crear una cuadrícula de hexágonos
-  for (let row = 0; row < Math.sqrt(numHexagons); row++) {
-    for (let col = 0; col < Math.sqrt(numHexagons); col++) {
-      const x = col * hexWidth + (row % 2 === 0 ? 0 : hexWidth / 2);
-      const z = row * (hexHeight * 0.75);
-      const y = 0;
+const TiledOceanFloor = () => {
+  const texture = useTexture("./textures/olas.png"); // Textura para los tiles
+  const mapSize = 40; // Tamaño de la cuadrícula (40x40 tiles)
 
-      // Crear vértices para el hexágono
-      const hexVertices = [];
-      for (let i = 0; i < 6; i++) {
-        const angle = (Math.PI / 3) * i;
-        hexVertices.push(new THREE.Vector3(
-          x + hexRadius * Math.cos(angle),
-          y,
-          z + hexRadius * Math.sin(angle)
-        ));
+  // Configuración de la textura
+  texture.wrapS = THREE.RepeatWrapping;
+  texture.wrapT = THREE.RepeatWrapping;
+  texture.repeat.set(mapSize, mapSize); // Ajustar repetición para abarcar todos los tiles
+
+  const material = useMemo(
+    () => ({
+      map: texture,
+      color: new THREE.Color(0x2b1a49), // Color base del fondo
+      side: THREE.DoubleSide,
+    }),
+    [texture]
+  );
+
+  // Generar posiciones para los tiles
+  const tiles = useMemo(() => {
+    const tileArray = [];
+    for (let x = 0; x < mapSize; x++) {
+      for (let z = 0; z < mapSize; z++) {
+        tileArray.push([x - mapSize / 2, -1, z - mapSize / 2]); // Ajustar posición de cada tile
       }
-
-      // Añadir posiciones y construir índices
-      positions.push(...hexVertices.map(v => [v.x, v.y, v.z]).flat());
-      for (let i = 0; i < 6; i++) {
-        indices.push(index, index + i, index + ((i + 1) % 6));
-      }
-      index += 6;
     }
-  }
-
-  return { positions, indices };
-};
-
-const Ocean = () => {
-  const waveTexture = useTexture("./textures/olas.png");
-  const materialRef = useRef();
-
-  // Generar malla de hexágonos
-  const { positions, indices } = useMemo(() => createHexagonalGrid(100, 200), []);
-
-  const geometry = useMemo(() => {
-    const geo = new THREE.BufferGeometry();
-    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
-    geo.setIndex(indices);
-    geo.computeVertexNormals();
-    return geo;
-  }, [positions, indices]);
-
-  // Configurar textura
-  waveTexture.wrapS = THREE.RepeatWrapping;
-  waveTexture.wrapT = THREE.RepeatWrapping;
-  waveTexture.repeat.set(50, 50);
-
-  useEffect(() => {
-    const animate = () => {
-      if (materialRef.current) {
-        waveTexture.offset.y += 0.005;
-        waveTexture.offset.x += 0.0025;
-      }
-      requestAnimationFrame(animate);
-    };
-    animate();
-  }, [waveTexture]);
+    return tileArray;
+  }, [mapSize]);
 
   return (
-    <mesh geometry={geometry}>
-      <meshStandardMaterial
-        ref={materialRef}
-        map={waveTexture}
-        color={new THREE.Color(0xffffff)}
-        transparent
-        opacity={0.7}
-        side={THREE.DoubleSide}
-      />
-    </mesh>
+    <group>
+      {tiles.map((position, index) => (
+        <Tile key={index} position={position} material={material} />
+      ))}
+    </group>
   );
 };
 
@@ -110,24 +71,60 @@ const Skybox = () => {
   );
 };
 
+const Ocean = () => {
+  const waveTexture = useTexture("./textures/olas.png");
+  const materialRef = React.useRef();
+
+  // Configuración de la textura del océano
+  waveTexture.wrapS = THREE.RepeatWrapping;
+  waveTexture.wrapT = THREE.RepeatWrapping;
+  waveTexture.repeat.set(50, 50);
+
+  // Animación de las olas
+  React.useEffect(() => {
+    const animate = () => {
+      if (materialRef.current) {
+        waveTexture.offset.y += 0.005;
+        waveTexture.offset.x += 0.0025;
+      }
+      requestAnimationFrame(animate);
+    };
+    animate();
+  }, [waveTexture]);
+
+  return (
+    <>
+      {/* Océano */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
+        <planeGeometry args={[200, 200, 200, 200]} />
+        <meshStandardMaterial
+          ref={materialRef}
+          map={waveTexture}
+          color={new THREE.Color(0xffffff)}
+          transparent={true}
+          opacity={0.7}
+          side={THREE.DoubleSide}
+        />
+      </mesh>
+
+      {/* Fondo marino tileado */}
+      <TiledOceanFloor />
+    </>
+  );
+};
+
 const App = () => {
   return (
     <Canvas
       shadows
-      style={{
-        width: "100vw",
-        height: "100vh",
-        position: "absolute",
-        top: 0,
-        left: 0,
-      }}
+      style={{ width: "100vw", height: "100vh", position: "absolute", top: 0, left: 0 }}
       camera={{ position: [50, 50, 50], fov: 100 }}
     >
       <ambientLight intensity={4.5} />
       <directionalLight position={[10, 10, 5]} intensity={1.5} />
-      <Skybox />
-      <Ocean />
-      <OrbitControls />
+      <Skybox /> {/* Cielo cúbico */}
+      <Ocean /> {/* Océano y fondo marino */}
+      <OrbitControls /> {/* Control orbital */}
     </Canvas>
   );
 };
