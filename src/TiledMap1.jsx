@@ -64,9 +64,19 @@ export default function TiledMap1({ selectedCharacter }) {
         />
       ))}
 
-      <a.group position={springProps.position} onClick={handleCharacterClick}>
-        <Character characterType={selectedCharacter} />
-      </a.group>
+      <a.group position={springProps.position} onClick={(e) => {
+  e.stopPropagation(); // Evita que el clic se propague a otros elementos
+  handleCharacterClick();
+}}>
+  {/* Área interactiva invisible */}
+  <mesh visible={false}>
+    <boxGeometry args={[2, 3, 2]} /> {/* Ajusta los valores para aumentar el área */}
+    <meshBasicMaterial transparent opacity={0} />
+  </mesh>
+
+  {/* Modelo del personaje */}
+  <Character characterType={selectedCharacter} />
+</a.group>
     </group>
   );
 }
