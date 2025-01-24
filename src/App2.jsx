@@ -13,7 +13,7 @@ const Tile = ({ position, material }) => (
 
 // Fondo marino tileado
 const TiledOceanFloor = () => {
-  const texture = useTexture("./textures/olas2.jpg"); // Textura del fondo marino
+  const texture = useTexture("./textures/fondo.png"); // Textura del fondo marino
   const mapSize = 20; // Número de tiles por fila/columna
 
   // Configuración de la textura
