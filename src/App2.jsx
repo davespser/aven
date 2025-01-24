@@ -5,7 +5,7 @@ import * as THREE from "three";
 
 const Tile = ({ position, material }) => (
   <mesh position={position} receiveShadow>
-    <boxGeometry args={[2, 0.1, 2]} />
+    <boxGeometry args={[20, 0.1, 20]} />
     <meshStandardMaterial {...material} />
   </mesh>
 );
