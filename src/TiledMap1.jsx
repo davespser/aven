@@ -1,191 +1,25 @@
 import React, { useState, useMemo } from 'react';
-import * as THREE from 'three';
-import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial';
-import { LineSegments2 } from 'three/examples/jsm/lines/LineSegments2';
-import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry';
-import { BoxGeometry, EdgesGeometry } from 'three';
 import { a, useSpring } from '@react-spring/three';
-import Character from './character'; // Componente del personaje
-
-function Tile({ position, material, lineMaterial, isSelected, isInRange, onClick }) {
-  const edges = useMemo(() => {
-    const geometry = new BoxGeometry(1, 0.2, 1);
-    const edgesGeometry = new EdgesGeometry(geometry);
-    const lineSegmentsGeometry = new LineSegmentsGeometry().fromEdgesGeometry(edgesGeometry);
-    return new LineSegments2(lineSegmentsGeometry, lineMaterial);
-  }, [lineMaterial]);
-
-  const { scale } = useSpring({
-    scale: isSelected ? 1.2 : 1,
-    config: { tension: 300, friction: 20 },
-  });
-
-  return (
-    <a.group position={position} scale={scale} onClick={onClick}>
-      <mesh castShadow receiveShadow>
-        <boxGeometry args={[1, 0.2, 1]} />
-        <meshPhysicalMaterial
-          {...material}
-          color={isSelected ? 'blue' : isInRange ? 'green' : material.color}
-        />
-      </mesh>
-      <primitive object={edges} />
-      {isSelected && (
-        <spotLight position={[0, 5, 0]} angle={0.5} intensity={2} penumbra={0.5} castShadow />
-      )}
-    </a.group>
-  );
-}
+import Tile from './Tile';
+import Character from './Character';
+import { calculateAccessibleTiles } from './TileMapUtils';
+import { createIceMaterial, createLineMaterial } from './Materials';
 
 export default function TiledMap1({ selectedCharacter }) {
-  const [selectedTile, setSelectedTile] = useState(null); // Tile actualmente seleccionado
-  const [accessibleTiles, setAccessibleTiles] = useState([]); // Tiles dentro del rango permitido
-  const mapSize = 10; // Tamaño del mapa en tiles
-  const movementRange = 3; // Rango de movimiento permitido
+  const [selectedTile, setSelectedTile] = useState(null);
+  const [accessibleTiles, setAccessibleTiles] = useState([]);
+  const mapSize = 10;
+  const movementRange = 3;
 
-  // Posición y animación del personaje
   const [characterPosition, setCharacterPosition] = useState([0, 0.5, 0]);
   const [springProps, api] = useSpring(() => ({
     position: characterPosition,
     config: { tension: 200, friction: 25 },
   }));
 
-  // Calcular los tiles accesibles según el rango de movimiento del personaje
-  const calculateAccessibleTiles = (currentPosition) => {
-    const [currentX, currentZ] = currentPosition;
-    const rangeTiles = [];
+  const iceMaterial = useMemo(() => createIceMaterial(), []);
+  const lineMaterial = useMemo(() => createLineMaterial(), []);
 
-    for (let x = 0; x < mapSize; x++) {
-      for (let z = 0; z < mapSize; z++) {
-        const distance = Math.abs(x - currentX) + Math.abs(z - currentZ);
-        if (distance <= movementRange) {
-          rangeTiles.push(`${x}-${z}`);
-        }
-      }
-    }
-    return rangeTiles;
-  };
-
-  // Seleccionar tiles accesibles al hacer clic en el personaje
-  const handleCharacterClick = () => {
-    const [currentX, , currentZ] = characterPosition.map((coord) => Math.round(coord + mapSize / 2));
-    const accessible = calculateAccessibleTiles([currentX, currentZ]);
-    setAccessibleTiles(accessible);
-  };
-
-  // Mover el personaje al hacer clic en un tile
-  const handleTileClick = (tile) => {
-    if (!accessibleTiles.includes(tile.id)) return; // Solo permite moverse a tiles dentro del rango
-
-    const [x, z] = tile.id.split('-').map(Number);
-    setSelectedTile(tile.id);
-    const newPosition = [x - mapSize / 2, 0.5, z - mapSize / 2];
-    setCharacterPosition(newPosition);
-    api.start({ position: newPosition }); // Inicia la animación hacia la nueva posición
-    setAccessibleTiles([]); // Limpia los tiles accesibles después del movimiento
-  };
-
-  // Material para los tiles (iceMaterial con shaders)
-  const iceMaterial = useMemo(() => {
-    const material = new THREE.MeshPhysicalMaterial({
-      color: '#d4f1f9',
-      transparent: true,
-      opacity: 0.8,
-      transmission: 0.2,
-      roughness: 0.9,
-      metalness: 0.5,
-      clearcoat: 0.9,
-      clearcoatRoughness: 2,
-    });
-
-    material.onBeforeCompile = (shader) => {
-      shader.uniforms.time = { value: 0 };
-
-      shader.vertexShader = `
-        varying vec3 vWorldPos;
-        uniform float time;
-
-        float hash(vec2 p) {
-          return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
-        }
-
-        float voronoi(vec2 p) {
-          vec2 g = floor(p);
-          vec2 f = fract(p);
-          float d = 1.0;
-          for (int y = -1; y <= 1; y++) {
-            for (int x = -1; x <= 1; x++) {
-              vec2 lattice = vec2(x, y);
-              vec2 offset = vec2(hash(g + lattice), hash(g.yx + lattice));
-              vec2 r = lattice + offset - f;
-              d = min(d, dot(r, r));
-            }
-          }
-          return d;
-        }
-
-        ${shader.vertexShader}
-      `.replace(
-        `#include <worldpos_vertex>`,
-        `
-        #include <worldpos_vertex>
-        vWorldPos = position;
-
-        float cracks = voronoi(position.xz * 5.0 + time * 2.5);
-        cracks = smoothstep(0.1, 0.15, cracks);
-        transformed.z += cracks * 1.8;
-        `
-      );
-
-      shader.fragmentShader = `
-        varying vec3 vWorldPos;
-        uniform float time;
-
-        float hash(vec2 p) {
-          return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
-        }
-
-        float voronoi(vec2 p) {
-          vec2 g = floor(p);
-          vec2 f = fract(p);
-          float d = 2.0;
-          for (int y = -1; y <= 1; y++) {
-            for (int x = -1; x <= 1; x++) {
-              vec2 lattice = vec2(x, y);
-              vec2 offset = vec2(hash(g + lattice), hash(g.yx + lattice));
-              vec2 r = lattice + offset - f;
-              d = min(d, dot(r, r));
-            }
-          }
-          return d;
-        }
-
-        ${shader.fragmentShader}
-      `.replace(
-        `#include <roughnessmap_fragment>`,
-        `
-        #include <roughnessmap_fragment>
-        float cracks = voronoi(vWorldPos.xz * 50.0 + time * 1.5);
-        cracks = smoothstep(0.1, 0.06, cracks);
-        roughnessFactor = mix(roughnessFactor, cracks, 2.8);
-        `
-      );
-    };
-
-    return material;
-  }, []);
-
-  // Material para las líneas de los tiles
-  const lineMaterial = useMemo(() => {
-    const material = new LineMaterial({
-      color: 'black',
-      linewidth: 0.8,
-    });
-    material.resolution.set(window.innerWidth, window.innerHeight);
-    return material;
-  }, []);
-
-  // Generar los tiles del mapa
   const tiles = useMemo(() => {
     const tileArray = [];
     for (let x = 0; x < mapSize; x++) {
@@ -201,6 +35,23 @@ export default function TiledMap1({ selectedCharacter }) {
     return tileArray;
   }, [iceMaterial, lineMaterial]);
 
+  const handleCharacterClick = () => {
+    const [currentX, , currentZ] = characterPosition.map((coord) => Math.round(coord + mapSize / 2));
+    const accessible = calculateAccessibleTiles(mapSize, [currentX, currentZ], movementRange);
+    setAccessibleTiles(accessible);
+  };
+
+  const handleTileClick = (tile) => {
+    if (!accessibleTiles.includes(tile.id)) return;
+
+    const [x, z] = tile.id.split('-').map(Number);
+    setSelectedTile(tile.id);
+    const newPosition = [x - mapSize / 2, 0.5, z - mapSize / 2];
+    setCharacterPosition(newPosition);
+    api.start({ position: newPosition });
+    setAccessibleTiles([]);
+  };
+
   return (
     <group>
       {tiles.map((tile) => (
@@ -213,7 +64,6 @@ export default function TiledMap1({ selectedCharacter }) {
         />
       ))}
 
-      {/* Renderizar el personaje */}
       <a.group position={springProps.position} onClick={handleCharacterClick}>
         <Character characterType={selectedCharacter} />
       </a.group>
