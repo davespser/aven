@@ -1,22 +1,72 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, useTexture, Plane } from "@react-three/drei";
+import { OrbitControls, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 
+// Generar geometría de un mosaico hexagonal
+const createHexagonalGrid = (radius, numHexagons) => {
+  const hexRadius = radius / Math.sqrt(numHexagons / 2); // Aproximar el radio de cada hexágono
+  const hexWidth = Math.sqrt(3) * hexRadius; // Ancho del hexágono
+  const hexHeight = 2 * hexRadius; // Altura del hexágono
+  const positions = [];
+  const indices = [];
+  let index = 0;
+
+  // Crear una cuadrícula de hexágonos
+  for (let row = 0; row < Math.sqrt(numHexagons); row++) {
+    for (let col = 0; col < Math.sqrt(numHexagons); col++) {
+      const x = col * hexWidth + (row % 2 === 0 ? 0 : hexWidth / 2);
+      const z = row * (hexHeight * 0.75);
+      const y = 0;
+
+      // Crear vértices para el hexágono
+      const hexVertices = [];
+      for (let i = 0; i < 6; i++) {
+        const angle = (Math.PI / 3) * i;
+        hexVertices.push(new THREE.Vector3(
+          x + hexRadius * Math.cos(angle),
+          y,
+          z + hexRadius * Math.sin(angle)
+        ));
+      }
+
+      // Añadir posiciones y construir índices
+      positions.push(...hexVertices.map(v => [v.x, v.y, v.z]).flat());
+      for (let i = 0; i < 6; i++) {
+        indices.push(index, index + i, index + ((i + 1) % 6));
+      }
+      index += 6;
+    }
+  }
+
+  return { positions, indices };
+};
+
 const Ocean = () => {
-  const waveTexture = useTexture('./textures/olas.png'); // Cargamos la textura de las olas
+  const waveTexture = useTexture("./textures/olas.png");
   const materialRef = useRef();
 
-  // Configuración para repetir la textura
+  // Generar malla de hexágonos
+  const { positions, indices } = useMemo(() => createHexagonalGrid(100, 200), []);
+
+  const geometry = useMemo(() => {
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+    geo.setIndex(indices);
+    geo.computeVertexNormals();
+    return geo;
+  }, [positions, indices]);
+
+  // Configurar textura
   waveTexture.wrapS = THREE.RepeatWrapping;
   waveTexture.wrapT = THREE.RepeatWrapping;
-  waveTexture.repeat.set(50, 50); // Repetir la textura 10x10 en toda la superficie
+  waveTexture.repeat.set(50, 50);
 
   useEffect(() => {
     const animate = () => {
       if (materialRef.current) {
-        waveTexture.offset.y += 0.005; // Movimiento vertical
-        waveTexture.offset.x += 0.0025; // Movimiento horizontal
+        waveTexture.offset.y += 0.005;
+        waveTexture.offset.x += 0.0025;
       }
       requestAnimationFrame(animate);
     };
@@ -24,41 +74,32 @@ const Ocean = () => {
   }, [waveTexture]);
 
   return (
-    <>
-      {/* Plano del océano */}
-      <Plane args={[200, 200, 200, 200]} rotation={[-Math.PI / 2, 0, 0]}>
-        <meshStandardMaterial
-          ref={materialRef}
-          map={waveTexture}
-          color={new THREE.Color(0xFFFFFF)} // Azul para el agua
-          transparent={true}
-          opacity={0.7} // Transparencia más apreciable
-          side={THREE.DoubleSide}
-        />
-      </Plane>
-
-      {/* Plano del fondo */}
-      <Plane args={[200, 200]} rotation={[-Math.PI / 2, 0, 0]} position={[0, -1, 0]}>
-        <meshStandardMaterial color={new THREE.Color(0x2b1a49)} side={THREE.DoubleSide} />
-      </Plane>
-    </>
+    <mesh geometry={geometry}>
+      <meshStandardMaterial
+        ref={materialRef}
+        map={waveTexture}
+        color={new THREE.Color(0xffffff)}
+        transparent
+        opacity={0.7}
+        side={THREE.DoubleSide}
+      />
+    </mesh>
   );
 };
 
 const Skybox = () => {
-  // Cargar las texturas para cada cara del cubo
   const textures = useTexture({
-    px: './textures/py.png',
-    nx: './textures/ny.png',
-    py: './textures/nx.png',
-    ny: './textures/px.png',
-    pz: './textures/pz.png',
-    nz: './textures/nz.png',
+    px: "./textures/py.png",
+    nx: "./textures/ny.png",
+    py: "./textures/nx.png",
+    ny: "./textures/px.png",
+    pz: "./textures/pz.png",
+    nz: "./textures/nz.png",
   });
 
   return (
     <mesh scale={[-1, 1, 1]} position={[0, 0, 0]}>
-      <boxGeometry args={[500, 500, 500]} /> {/* Tamaño del cubo */}
+      <boxGeometry args={[500, 500, 500]} />
       <meshBasicMaterial attachArray="material" map={textures.px} side={THREE.BackSide} />
       <meshBasicMaterial attachArray="material" map={textures.nx} side={THREE.BackSide} />
       <meshBasicMaterial attachArray="material" map={textures.py} side={THREE.BackSide} />
@@ -72,11 +113,11 @@ const Skybox = () => {
 const App = () => {
   return (
     <Canvas
-    shadows
+      shadows
       style={{
-        width: '100vw',
-        height: '100vh',
-        position: 'absolute',
+        width: "100vw",
+        height: "100vh",
+        position: "absolute",
         top: 0,
         left: 0,
       }}
@@ -84,9 +125,9 @@ const App = () => {
     >
       <ambientLight intensity={4.5} />
       <directionalLight position={[10, 10, 5]} intensity={1.5} />
-      <Skybox /> {/* Cielo cúbico */}
-      <Ocean /> {/* Océano */}
-      <OrbitControls /> {/* Cámara orbital */}
+      <Skybox />
+      <Ocean />
+      <OrbitControls />
     </Canvas>
   );
 };
