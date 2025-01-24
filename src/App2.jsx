@@ -5,14 +5,14 @@ import * as THREE from "three";
 
 const Tile = ({ position, material }) => (
   <mesh position={position} receiveShadow>
-    <boxGeometry args={[1, 0.1, 1]} />
+    <boxGeometry args={[2, 0.1, 2]} />
     <meshStandardMaterial {...material} />
   </mesh>
 );
 
 const TiledOceanFloor = () => {
   const texture = useTexture("./textures/fondo2.jpg"); // Textura para los tiles
-  const mapSize = 250; // Tamaño de la cuadrícula (40x40 tiles)
+  const mapSize = 22; // Tamaño de la cuadrícula (40x40 tiles)
 
   // Configuración de la textura
   texture.wrapS = THREE.RepeatWrapping;
