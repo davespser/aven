@@ -7,7 +7,7 @@ import { BoxGeometry, EdgesGeometry } from 'three';
 import { a, useSpring } from '@react-spring/three';
 import Character from './character'; // Componente del personaje
 
-function Tile({ position, material, lineMaterial, isSelected, onClick }) {
+function Tile({ position, material, lineMaterial, isSelected, isInRange, onClick }) {
   const edges = useMemo(() => {
     const geometry = new BoxGeometry(1, 0.2, 1);
     const edgesGeometry = new EdgesGeometry(geometry);
@@ -24,7 +24,10 @@ function Tile({ position, material, lineMaterial, isSelected, onClick }) {
     <a.group position={position} scale={scale} onClick={onClick}>
       <mesh castShadow receiveShadow>
         <boxGeometry args={[1, 0.2, 1]} />
-        <meshPhysicalMaterial {...material} color={isSelected ? 'blue' : material.color} />
+        <meshPhysicalMaterial
+          {...material}
+          color={isSelected ? 'blue' : isInRange ? 'green' : material.color}
+        />
       </mesh>
       <primitive object={edges} />
       {isSelected && (
@@ -36,7 +39,9 @@ function Tile({ position, material, lineMaterial, isSelected, onClick }) {
 
 export default function TiledMap1({ selectedCharacter }) {
   const [selectedTile, setSelectedTile] = useState(null); // Estado del tile seleccionado
+  const [accessibleTiles, setAccessibleTiles] = useState([]); // Tiles disponibles para movimiento
   const mapSize = 10;
+  const movementRange = 3; // Rango de movimiento del personaje
 
   // Estado y animación para la posición del personaje
   const [characterPosition, setCharacterPosition] = useState([0, 0.5, 0]);
@@ -45,13 +50,39 @@ export default function TiledMap1({ selectedCharacter }) {
     config: { tension: 200, friction: 25 },
   }));
 
-  // Maneja el clic en un tile y actualiza la posición del personaje
+  // Función para calcular tiles accesibles en el rango de movimiento
+  const calculateAccessibleTiles = (currentPosition) => {
+    const [currentX, currentZ] = currentPosition;
+    const rangeTiles = [];
+
+    for (let x = 0; x < mapSize; x++) {
+      for (let z = 0; z < mapSize; z++) {
+        const distance = Math.abs(x - currentX) + Math.abs(z - currentZ);
+        if (distance <= movementRange) {
+          rangeTiles.push(`${x}-${z}`);
+        }
+      }
+    }
+    return rangeTiles;
+  };
+
+  // Maneja el clic en un personaje para mostrar tiles accesibles
+  const handleCharacterClick = () => {
+    const [currentX, , currentZ] = characterPosition.map((coord) => Math.round(coord + mapSize / 2));
+    const accessible = calculateAccessibleTiles([currentX, currentZ]);
+    setAccessibleTiles(accessible);
+  };
+
+  // Maneja el clic en un tile y mueve al personaje
   const handleTileClick = (tile) => {
+    if (!accessibleTiles.includes(tile.id)) return; // Solo permite moverse a tiles accesibles
+
     const [x, z] = tile.id.split('-').map(Number);
     setSelectedTile(tile.id);
     const newPosition = [x - mapSize / 2, 0.5, z - mapSize / 2];
     setCharacterPosition(newPosition);
     api.start({ position: newPosition }); // Actualiza la animación hacia la nueva posición
+    setAccessibleTiles([]); // Limpia los tiles accesibles después del movimiento
   };
 
   // Material del tile (iceMaterial)
@@ -177,12 +208,13 @@ export default function TiledMap1({ selectedCharacter }) {
           key={tile.id}
           {...tile}
           isSelected={selectedTile === tile.id}
+          isInRange={accessibleTiles.includes(tile.id)}
           onClick={() => handleTileClick(tile)}
         />
       ))}
 
       {/* Renderizar el personaje */}
-      <a.group position={springProps.position}>
+      <a.group position={springProps.position} onClick={handleCharacterClick}>
         <Character characterType={selectedCharacter} />
       </a.group>
     </group>
