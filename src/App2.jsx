@@ -6,6 +6,7 @@ import * as THREE from "three";
 // Componente para una sola tile
 const Tile = ({ position, material }) => (
   <mesh position={position} receiveShadow>
+    <mesh scale={[10, 1, 10]} position={[0, 0, 0]}>
     <boxGeometry args={[1, 0.1, 1]} /> {/* Tamaño ajustable */}
     <meshStandardMaterial {...material} />
   </mesh>
