@@ -13,7 +13,7 @@ const Tile = ({ position, material }) => (
 
 // Fondo marino tileado
 const TiledOceanFloor = () => {
-  const texture = useTexture("./textures/fondo2.jpg"); // Textura del fondo marino
+  const texture = useTexture("./textures/olas2.jpg"); // Textura del fondo marino
   const mapSize = 20; // Número de tiles por fila/columna
 
   // Configuración de la textura
@@ -107,7 +107,7 @@ const Ocean = () => {
   return (
     <>
       {/* Océano */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, -0.2, 0]} receiveShadow>
         <planeGeometry args={[200, 200, 200, 200]} />
         <meshStandardMaterial
           ref={materialRef}
