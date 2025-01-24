@@ -1,30 +1,40 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useEffect, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls , useTexture} from "@react-three/drei";
+import { OrbitControls, useTexture } from "@react-three/drei";
 import * as THREE from "three";
 
 // Componente para una sola tile
 const Tile = ({ position, material }) => (
   <mesh position={position} receiveShadow>
-    <boxGeometry args={[200, 0.1, 200]} /> {/* Tamaño ajustable */}
+    <boxGeometry args={[100, 0.1, 100]} /> {/* Tamaño ajustable */}
     <meshStandardMaterial {...material} />
   </mesh>
 );
 
-// Fondo marino tileado (sin textura, solo color)
+// Fondo marino tileado
 const TiledOceanFloor = () => {
+  const texture = useTexture("./textures/olas2.jpg");
   const mapSize = 20; // Tamaño del plano tileado
 
-  // Material de las tiles con solo color
+  // Configuración de la textura (solo para el fondo, sin animaciones)
+  useEffect(() => {
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(mapSize, mapSize); // Repetir textura para cubrir todas las tiles
+    texture.needsUpdate = true;
+  }, [texture, mapSize]);
+
+  // Material de las tiles
   const material = useMemo(
     () => ({
-      color: new THREE.Color(0x2b1a49),
-      roughness: 0.2,
-      metalness: 0.1,
+      map: texture,
       emissive: new THREE.Color(0x2b1a49),
-      emissiveIntensity: 0.1,
+      emissiveIntensity: 1,
+      roughness: 0.8,
+      metalness: 0.01,
+      side: THREE.FrontSide,
     }),
-    []
+    [texture]
   );
 
   // Generar posiciones para los tiles
@@ -47,18 +57,21 @@ const TiledOceanFloor = () => {
   );
 };
 
-// Océano con olas animadas
+// Océano con animaciones
 const Ocean = () => {
-  const waveTexture = useTexture("./textures/olas.png"); // Textura de olas
-  const materialRef = React.useRef();
+  const waveTexture = useTexture("./textures/olas.png");
+  const materialRef = useRef();
 
-  // Configuración de la textura del océano
-  waveTexture.wrapS = THREE.RepeatWrapping;
-  waveTexture.wrapT = THREE.RepeatWrapping;
-  waveTexture.repeat.set(50, 50);
+  // Configuración de textura del océano
+  useEffect(() => {
+    waveTexture.wrapS = THREE.RepeatWrapping;
+    waveTexture.wrapT = THREE.RepeatWrapping;
+    waveTexture.repeat.set(50, 50); // Ajuste de repetición para el océano
+    waveTexture.needsUpdate = true;
+  }, [waveTexture]);
 
   // Animación de las olas
-  React.useEffect(() => {
+  useEffect(() => {
     const animate = () => {
       if (materialRef.current) {
         waveTexture.offset.y += 0.005;
@@ -75,7 +88,7 @@ const Ocean = () => {
       <meshStandardMaterial
         ref={materialRef}
         map={waveTexture}
-        color={new THREE.Color(0x87ceeb)}
+        color={new THREE.Color(0xffffff)}
         transparent={true}
         opacity={0.7}
         side={THREE.DoubleSide}
@@ -113,11 +126,11 @@ const App = () => {
       style={{ width: "100vw", height: "100vh", position: "absolute", top: 0, left: 0 }}
       camera={{ position: [50, 50, 50], fov: 100 }}
     >
-      <ambientLight intensity={1.5} />
-      <directionalLight position={[10, 10, 5]} intensity={1.5} castShadow />
+      <ambientLight intensity={0.2} />
+      <directionalLight position={[10, 20, 5]} intensity={0.5} castShadow />
       <Skybox /> {/* Cielo cúbico */}
-      <Ocean /> {/* Océano con olas animadas */}
-      <TiledOceanFloor /> {/* Fondo marino con color sólido */}
+      <Ocean /> {/* Océano animado */}
+      <TiledOceanFloor /> {/* Fondo marino estático */}
       <OrbitControls /> {/* Control orbital */}
     </Canvas>
   );
