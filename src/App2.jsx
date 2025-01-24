@@ -90,7 +90,7 @@ const Ocean = () => {
         map={waveTexture}
         color={new THREE.Color(0xffffff)}
         transparent={true}
-        opacity={0.7}
+        opacity={0.1}
         side={THREE.DoubleSide}
       />
     </mesh>
