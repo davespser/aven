@@ -22,7 +22,7 @@ const TiledOceanFloor = () => {
       roughness: 0.2,
       metalness: 0.1,
       emissive: new THREE.Color(0x2b1a49),
-      emissiveIntensity: 0.1,
+      emissiveIntensity: 1,
       side: THREE.DoubleSide,
     }),
     []
